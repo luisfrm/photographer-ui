@@ -6,13 +6,13 @@ export default function Footer() {
   return (
     <>
       <footer className="bg-secondary text-secondary-foreground border-t border-border">
-        <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Logo and Tagline */}
             <div className="space-y-4">
               <Link 
                 href="/" 
-                className="flex items-center space-x-2 text-secondary-foreground hover:text-primary transition-colors"
+                className="flex items-center space-x-2 text-secondary-foreground"
               >
                 <Camera className="h-8 w-8 text-primary" />
                 <span className="font-serif text-xl font-semibold tracking-tight">

@@ -1,8 +1,8 @@
-import Contact from "@/components/Contact";
-import Gallery from "@/components/Gallery";
-import Hero from "@/components/Hero";
-import Services from "@/components/Services";
-import Testimonials from "@/components/Testimonials";
+import Contact from "@/components/home/Contact";
+import Gallery from "@/components/home/Gallery";
+import Hero from "@/components/home/Hero";
+import Services from "@/components/home/Services";
+import Testimonials from "@/components/home/Testimonials";
 
 export default function Home() {
   return (
