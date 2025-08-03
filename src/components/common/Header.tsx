@@ -1,14 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Camera } from 'lucide-react'
+import { Menu } from 'lucide-react'
+import MobileNavigation from './MobileNavigation'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
   const navItems = [
     { name: 'Servicios', href: '/servicios' },
@@ -18,7 +18,7 @@ export default function Header() {
   ]
 
   return (
-    <header className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="bg-background/95 border-b border-border fixed w-full top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-background/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
@@ -26,10 +26,13 @@ export default function Header() {
             href="/" 
             className="flex items-center space-x-2 text-foreground hover:scale-105 transition-all"
           >
-            <Camera className="h-8 w-8 text-primary" />
-            <span className="font-serif text-2xl font-semibold tracking-tight">
-              Darianny Salas
-            </span>
+            <Image
+              src="/logo.webp"
+              alt="Logo"
+              width={70}
+              height={70}
+              className='rounded-2xl opacity-70'
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -47,59 +50,33 @@ export default function Header() {
                 {item.name}
               </Link>
             ))}
-          </nav>
-
-          {/* CTA Button */}
-          <div className="hidden md:flex items-center space-x-4">
             <Button variant="default" size="lg" asChild>
               <Link href="/contacto">
                 Reserva Ahora
               </Link>
             </Button>
-          </div>
+          </nav>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
             <Button
               variant="ghost"
               size="icon"
-              onClick={toggleMenu}
+              onClick={() => setIsMenuOpen(true)}
               aria-label="Toggle menu"
             >
-              {isMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              <Menu className="h-5 w-5" />
             </Button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block px-3 py-2 text-foreground/80 hover:text-foreground transition-colors font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <div className="px-3 py-2">
-                <Button asChild className="w-full">
-                  <Link href="/contacto" onClick={() => setIsMenuOpen(false)}>
-                    Reserva Ahora
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Mobile Navigation Sheet */}
+      <MobileNavigation
+        isOpen={isMenuOpen}
+        onOpenChange={setIsMenuOpen}
+        navItems={navItems}
+      />
     </header>
   )
 }
