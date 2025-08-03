@@ -19,7 +19,7 @@ export default function Header() {
 
   return (
     <header className="bg-background border-b border-border fixed w-full top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
-      <div className=" w-full mx-auto py-4 md:max-w-6xl lg:max-w-8xl">
+      <div className=" w-full mx-auto py-4 max-w-[90vw] md:max-w-6xl lg:max-w-8xl">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <Link 
