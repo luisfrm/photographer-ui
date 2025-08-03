@@ -30,7 +30,7 @@ export default function InfiniteCarousel() {
                   src={image.src}
                   alt={image.alt}
                   fill
-                  className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                  className="object-cover hover:scale-105 transition-all duration-500"
                 />
               </div>
             </div>
