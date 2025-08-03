@@ -33,7 +33,7 @@ export default function MobileNavigation({
           </SheetTitle>
         </SheetHeader>
         
-        <div className="flex flex-col space-y-6 mt-8">
+        <div className="flex flex-col space-y-6 mt-8 px-4">
           {/* Navigation Items */}
           <nav className="flex flex-col space-y-4">
             {navItems.map((item) => (
