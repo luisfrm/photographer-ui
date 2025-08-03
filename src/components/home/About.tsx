@@ -8,7 +8,7 @@ export default function About() {
       <div>
         <h2 className="text-5xl font-serif mb-6 text-black">About me</h2>
         <p className="text-gray-600 text-lg leading-relaxed mb-6">
-          I'm a passionate photographer based in London, specializing in premium portrait and wedding photography.
+          I&apos;m a passionate photographer based in London, specializing in premium portrait and wedding photography.
           With over 8 years of experience, I capture the essence of every moment with an artistic eye and
           professional approach.
         </p>

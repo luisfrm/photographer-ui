@@ -8,7 +8,6 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/components/ui/sheet'
-import { Menu, X } from 'lucide-react'
 
 interface MobileNavigationProps {
   isOpen: boolean

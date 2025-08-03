@@ -33,7 +33,7 @@ const pageName = 'home';
 export default async function Home({ params }: PageProps) {
   const { locale } = await params;
   const content = await getTranslations(pageName, locale);
-  // console.log(content)
+  console.log(content)
 
   return (
     <main className="flex flex-col min-h-screen">
@@ -54,5 +54,13 @@ export default async function Home({ params }: PageProps) {
 export async function generateStaticParams() {
   const supabase = await createSupabaseStaticClient();
   const { data } = await supabase.from('languages').select('code');
-  return data?.map((language) => ({ locale: language.code }));
+  
+  if (!data || data.length === 0) {
+    return [
+      { locale: 'en' },
+      { locale: 'es' }
+    ];
+  }
+  
+  return data.map((language) => ({ locale: language.code }));
 }
