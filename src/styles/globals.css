@@ -189,3 +189,13 @@ button:not(:disabled) {
 .animate-scroll {
   animation: scroll 30s linear infinite;
 }
+
+.max-w-8xl {
+  max-width: 1500px;
+}
+
+@media (min-width: 1600px) {
+  .lg\:max-w-8xl {
+    max-width: 1500px;
+  }
+}
