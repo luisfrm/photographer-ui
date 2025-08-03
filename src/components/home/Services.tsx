@@ -1,28 +1,77 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import Image from 'next/image';
+import PageSection from '../common/PageSection';
+import { H2 } from '../common/Titles';
 
 export default function Services() {
-  return (
-    <section className="relative overflow-hidden bg-background py-20 sm:py-32">
-      <div className=" px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Nuestros Servicios
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-foreground/80">
-            Ofrecemos una amplia gama de servicios fotográficos profesionales para capturar tus momentos más especiales.
-          </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button asChild size="lg">
-              <Link href="/servicios">
-                Ver todos los servicios
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+	return (
+		<PageSection className="bg-gray-100">
+			<H2>Services</H2>
+
+			<div className="grid md:grid-cols-3 gap-8 border-t border-gray-300">
+				{/* Wedding Photography */}
+				<div className="md:border-r md:pr-8 md:pt-8 border-gray-300">
+					<h3 className="text-2xl font-serif mb-6 text-black">Wedding Photography</h3>
+					<ul className="space-y-3 mb-8 text-gray-600">
+						<li>• Pre-Wedding Consultation</li>
+						<li>• Full-Day Coverage</li>
+						<li>• Customized Wedding Albums</li>
+						<li>• Online Gallery and Digital Downloads</li>
+						<li>• Highlight Video and Slideshow</li>
+					</ul>
+					<div className="mb-8">
+						<div className="relative h-64 mb-6">
+							<Image src="/photo1.jpg" alt="Wedding Photography" fill className="object-cover rounded-lg" />
+						</div>
+					</div>
+					<Button variant="outline" asChild>
+						<Link href="/contact">Get In Touch</Link>
+					</Button>
+				</div>
+
+				{/* Portrait Photography */}
+				<div className="md:border-r border-gray-300 md:pr-8 md:pt-8">
+					<h3 className="text-2xl font-serif mb-6 text-black">Portrait Photography</h3>
+					<ul className="space-y-3 mb-8 text-gray-600">
+						<li>• Personalized Consultation</li>
+						<li>• On-Location and Studio Options</li>
+						<li>• Professional Hair & Makeup Services</li>
+						<li>• Retouching and Editing</li>
+						<li>• Custom Print Packages</li>
+					</ul>
+					<div className="mb-8">
+						<div className="relative h-64 mb-6">
+							<Image src="/photo2.jpg" alt="Portrait Photography" fill className="object-cover rounded-lg" />
+						</div>
+					</div>
+					<Button variant="outline" asChild>
+						<Link href="/contact">Get In Touch</Link>
+					</Button>
+				</div>
+
+				{/* Nature Photography */}
+				<div className="md:pt-8">
+					<h3 className="text-2xl font-serif mb-6 text-black">Nature Photography</h3>
+					<ul className="space-y-3 mb-8 text-gray-600">
+						<li>• Guided Photo Tours</li>
+						<li>• Seasonal & Special Event Shoots</li>
+						<li>• Prints and Custom Framing</li>
+						<li>• Limited Edition Collections</li>
+						<li>• Custom Books & Calendars</li>
+					</ul>
+					<div className="mb-8">
+						<div className="relative h-64 mb-6">
+							<Image src="/photo3.png" alt="Nature Photography" fill className="object-cover rounded-lg" />
+						</div>
+					</div>
+					<Button variant="outline" asChild>
+						<Link href="/contact">Get In Touch</Link>
+					</Button>
+				</div>
+			</div>
+		</PageSection>
+	);
 }
