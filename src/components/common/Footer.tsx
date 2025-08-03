@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <>
       <footer className="bg-secondary text-secondary-foreground border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className=" w-full mx-auto px-6 sm:px-6 lg:px-0 py-12 md:max-w-6xl lg:max-w-8xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Logo and Tagline */}
             <div className="space-y-4">
@@ -79,24 +79,6 @@ export default function Footer() {
           </div>
         </div>
       </footer>
-
-      {/* WhatsApp Floating Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          asChild
-          size="lg"
-          className="rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-green-500 hover:bg-green-600 text-white border-0 h-14 w-14 p-0"
-        >
-          <Link 
-            href="https://wa.me/1234567890"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Contactar por WhatsApp"
-          >
-            <MessageCircle className="h-6 w-6" />
-          </Link>
-        </Button>
-      </div>
     </>
   )
 }

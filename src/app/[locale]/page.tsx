@@ -6,6 +6,7 @@ import Testimonials from "@/components/home/Testimonials";
 import { createSupabaseServerClient, createSupabaseStaticClient } from "@/lib/supabase/server";
 import { PageProps } from "@/types/pages";
 import InfiniteCarousel from "@/components/home/infinite-carousel";
+import Gallery from "@/components/home/Gallery";
 
 async function getTranslations(slug: string, locale: string): Promise<string> {
   const supabase = await createSupabaseServerClient();
@@ -38,14 +39,10 @@ export default async function Home({ params }: PageProps) {
   return (
     <main className="flex flex-col min-h-screen">
       <Hero />
-      <section className="py-16">
-        <div className="w-full">
-          <InfiniteCarousel />
-        </div>
-      </section>
+      <InfiniteCarousel />
       <About />
+      <Gallery />
       <Services />
-      <Testimonials />
       <Contact />
     </main>
   );

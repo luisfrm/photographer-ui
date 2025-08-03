@@ -3,6 +3,7 @@ import { Geist_Mono, Montserrat, Playfair_Display } from "next/font/google";
 import "@/styles/globals.css";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
+import Widgets from "@/components/common/Widgets";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -23,6 +24,11 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "Photographer Studio",
   description: "Photographer Studio",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon_apple.ico",
+  },
 };
 
 export default function RootLayout({
@@ -38,6 +44,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <Widgets />
       </body>
     </html>
   );

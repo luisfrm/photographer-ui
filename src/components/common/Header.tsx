@@ -18,8 +18,8 @@ export default function Header() {
   ]
 
   return (
-    <header className="bg-background/95 border-b border-border fixed w-full top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-background/90">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <header className="bg-background border-b border-border fixed w-full top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+      <div className=" w-full mx-auto py-4 md:max-w-6xl lg:max-w-8xl">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <Link 
@@ -50,7 +50,7 @@ export default function Header() {
                 {item.name}
               </Link>
             ))}
-            <Button variant="default" size="lg" asChild>
+            <Button variant="default" size="md" asChild>
               <Link href="/contacto">
                 Reserva Ahora
               </Link>
