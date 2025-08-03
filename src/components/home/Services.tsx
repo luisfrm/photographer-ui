@@ -13,7 +13,7 @@ export default function Services() {
 
 			<div className="grid md:grid-cols-3 gap-8 border-t border-gray-300">
 				{/* Wedding Photography */}
-				<div className="md:border-r md:pr-8 md:pt-8 border-gray-300">
+				<div className="md:border-r md:pr-8 pt-8 border-gray-300">
 					<h3 className="text-2xl font-serif mb-6 text-black">Wedding Photography</h3>
 					<ul className="space-y-3 mb-8 text-gray-600">
 						<li>• Pre-Wedding Consultation</li>
