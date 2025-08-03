@@ -24,7 +24,7 @@ export default function Services() {
 					</ul>
 					<div className="mb-8">
 						<div className="relative h-64 mb-6">
-							<Image src="/photo1.jpg" alt="Wedding Photography" fill className="object-cover rounded-lg" />
+							<Image src="/photo_7.webp" alt="Wedding Photography" fill className="object-cover rounded-lg" />
 						</div>
 					</div>
 					<Button variant="outline" asChild>
@@ -44,7 +44,7 @@ export default function Services() {
 					</ul>
 					<div className="mb-8">
 						<div className="relative h-64 mb-6">
-							<Image src="/photo2.jpg" alt="Portrait Photography" fill className="object-cover rounded-lg" />
+							<Image src="/photo_4.webp" alt="Portrait Photography" fill className="object-cover rounded-lg" />
 						</div>
 					</div>
 					<Button variant="outline" asChild>
@@ -64,7 +64,7 @@ export default function Services() {
 					</ul>
 					<div className="mb-8">
 						<div className="relative h-64 mb-6">
-							<Image src="/photo3.png" alt="Nature Photography" fill className="object-cover rounded-lg" />
+							<Image src="/photo_9.webp" alt="Nature Photography" fill className="object-cover rounded-lg" />
 						</div>
 					</div>
 					<Button variant="outline" asChild>
