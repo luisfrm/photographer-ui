@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Montserrat, Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import "@/styles/globals.css";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
@@ -45,6 +46,11 @@ export default function RootLayout({
         {children}
         <Footer />
         <Widgets />
+        <Script
+          src="https://assets.onedollarstats.com/stonks.js"
+          strategy="afterInteractive"
+          defer
+        />
       </body>
     </html>
   );
