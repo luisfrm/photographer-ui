@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import { Camera, Mail, Phone, Instagram, MessageCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Camera, Mail, Phone, Instagram } from 'lucide-react'
 
 export default function Footer() {
   return (

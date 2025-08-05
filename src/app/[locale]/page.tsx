@@ -7,32 +7,19 @@ import { PageProps } from "@/types/pages";
 import InfiniteCarousel from "@/components/home/infinite-carousel";
 import Gallery from "@/components/home/Gallery";
 
-// async function getTranslations(slug: string, locale: string): Promise<string> {
-//   const supabase = await createSupabaseServerClient();
-
-//   const { data } = await supabase
-//     .from('pages')
-//     .select(`
-//       slug,
-//       page_translations (
-//         content,
-//         languages (code)
-//       )
-//     `)
-//     .eq('slug', slug)
-//     .eq('page_translations.languages.code', locale)
-//     .single();
-
-//   return data?.page_translations?.[0]?.content || (await getTranslations(slug, 'en'));
-// }
-
 export const revalidate = 60;
 
 // const pageName = 'home';
 
 export default async function Home({ params }: PageProps) {
-  // const { locale } = await params;
-  // const content = await getTranslations(pageName, locale);
+  const { locale } = await params;
+
+  console.log(locale);
+
+  // const photographerResponse = await getPhotographer();
+  // const photographer = await photographerResponse.json();
+
+  // console.log(photographer);
 
   return (
     <main className="flex flex-col min-h-screen">
