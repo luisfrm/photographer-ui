@@ -34,7 +34,7 @@ export default function GlobalError({
                 Intentar de nuevo
               </Button>
               <Button variant="outline" asChild>
-                <Link href="/">
+                <Link href="/en">
                   Volver al inicio
                 </Link>
               </Button>
