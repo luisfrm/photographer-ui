@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'
 import MobileNavigation from './MobileNavigation'
+import Logo from './Logo'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -26,29 +27,13 @@ export default function Header() {
             href="/" 
             className="flex items-center space-x-2 text-foreground hover:scale-105 transition-all"
           >
-            <Image
-              src="/logo.webp"
-              alt="Logo"
-              width={70}
-              height={70}
-              className='rounded-2xl opacity-70'
-            />
+            <Logo />
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="
-                  text-foreground/80 hover:text-foreground font-medium text-sm
-                  py-2 border-b-2 border-b-transparent hover:border-b-primary transition-all duration-300
-                  hover:scale-105
-                "
-              >
-                {item.name}
-              </Link>
+              <NavItem key={item.name} name={item.name} href={item.href} />
             ))}
             <Button variant="default" size="md" asChild>
               <Link href="/contacto">
@@ -78,5 +63,21 @@ export default function Header() {
         navItems={navItems}
       />
     </header>
+  )
+}
+
+const NavItem = ({ name, href }: { name: string, href: string }) => {
+  return (
+    <Link
+      key={name}
+      href={href}
+      className="
+        text-foreground/80 hover:text-foreground font-medium text-sm
+        py-2 border-b-2 border-b-transparent hover:border-b-primary
+        hover:scale-105 transition-transform duration-100
+      "
+    >
+      {name}
+    </Link>
   )
 }

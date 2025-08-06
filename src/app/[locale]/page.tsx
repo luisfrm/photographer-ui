@@ -6,6 +6,7 @@ import { createSupabaseStaticClient } from "@/lib/supabase/server";
 import { PageProps } from "@/types/pages";
 import InfiniteCarousel from "@/components/home/infinite-carousel";
 import Gallery from "@/components/home/Gallery";
+import Pricing from "@/components/home/Pricing";
 
 export const revalidate = 60;
 
@@ -27,7 +28,7 @@ export default async function Home({ params }: PageProps) {
       <InfiniteCarousel />
       <About />
       <Gallery />
-      <Services />
+      <Pricing />
       <Contact />
     </main>
   );
