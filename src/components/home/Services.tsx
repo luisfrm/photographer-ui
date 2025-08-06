@@ -28,7 +28,7 @@ export default function Services() {
 						</div>
 					</div>
 					<Button variant="outline" asChild>
-						<Link href="/contact">Get In Touch</Link>
+						<Link href="/encontact">Get In Touch</Link>
 					</Button>
 				</div>
 
@@ -48,7 +48,7 @@ export default function Services() {
 						</div>
 					</div>
 					<Button variant="outline" asChild>
-						<Link href="/contact">Get In Touch</Link>
+						<Link href="/encontact">Get In Touch</Link>
 					</Button>
 				</div>
 
@@ -68,7 +68,7 @@ export default function Services() {
 						</div>
 					</div>
 					<Button variant="outline" asChild>
-						<Link href="/contact">Get In Touch</Link>
+						<Link href="/encontact">Get In Touch</Link>
 					</Button>
 				</div>
 			</div>

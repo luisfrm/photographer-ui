@@ -31,7 +31,15 @@ export function H3({ children, className }: TitleProps) {
 
 export function H4({ children, className }: TitleProps) {
   return (
-    <h3 className={cn("text-2xl font-serif mb-6 text-black", className)}>
+    <h4 className={cn("text-4xl font-serif mb-6 text-black", className)}>
+      {children}
+    </h4>
+  )
+}
+
+export function H5({ children, className }: TitleProps) {
+  return (
+    <h3 className={cn("text-5xl font-serif mb-6 text-black", className)}>
       {children}
     </h3>
   )

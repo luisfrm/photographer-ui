@@ -16,7 +16,7 @@ export default function Testimonials() {
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Button asChild size="md">
-              <Link href="/testimonios">
+              <Link href="/entestimonios">
                 Ver testimonios
               </Link>
             </Button>

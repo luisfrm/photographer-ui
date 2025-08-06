@@ -51,7 +51,7 @@ export default function MobileNavigation({
           {/* Call to Action Button */}
           <div className="pt-4">
             <Button asChild className="w-full py-3 text-base font-medium">
-              <Link href="/contacto" onClick={handleItemClick}>
+              <Link href="/en/contacto" onClick={handleItemClick}>
                 Reserva Ahora
               </Link>
             </Button>

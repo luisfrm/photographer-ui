@@ -40,7 +40,7 @@ export default function Hero() {
           </p>
           <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-2">
             <Button asChild size="lg">
-              <Link href="/contacto">
+              <Link href="/encontacto">
                 Reserva una sesión
               </Link>
             </Button>

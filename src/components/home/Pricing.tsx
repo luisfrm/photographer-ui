@@ -3,9 +3,7 @@ import { Button } from '../ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
 
-type Props = {}
-
-const Pricing = (props: Props) => {
+const Pricing = () => {
   return (
     <section className="py-20 bg-white">
         <div className="w-full md:max-w-6xl lg:max-w-7xl mx-auto px-6 sm:px-6 lg:px-0">
@@ -43,7 +41,7 @@ const Pricing = (props: Props) => {
                 variant="outline"
                 asChild
               >
-                <Link href="/contact">Get In Touch</Link>
+                <Link href="/encontact">Get In Touch</Link>
               </Button>
             </div>
 
@@ -78,7 +76,7 @@ const Pricing = (props: Props) => {
                 variant="outline"
                 asChild
               >
-                <Link href="/contact">Get In Touch</Link>
+                <Link href="/encontact">Get In Touch</Link>
               </Button>
             </div>
 
@@ -113,7 +111,7 @@ const Pricing = (props: Props) => {
                 variant="outline"
                 asChild
               >
-                <Link href="/contact">Get In Touch</Link>
+                <Link href="/encontact">Get In Touch</Link>
               </Button>
             </div>
           </div>

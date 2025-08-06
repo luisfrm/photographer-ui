@@ -23,7 +23,7 @@ export default function About() {
 					</Button>
 				</div>
 				<div className="relative h-96 md:h-[500px] order-1 md:order-2">
-					<Image src="/photo_6.webp" alt="About Giulia" fill className="object-cover rounded-lg" />
+					<Image src="/photo_6.webp" alt="About Dari" fill className="object-cover rounded-lg" />
 				</div>
 			</div>
 		</PageSection>

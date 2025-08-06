@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'
@@ -12,10 +11,10 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const navItems = [
-    { name: 'Servicios', href: '/servicios' },
-    { name: 'Paquetes', href: '/precios' },
-    { name: 'Sobre Nosotros', href: '/sobre-nosotros' },
-    { name: 'Contacto', href: '/contacto' },
+    { name: 'Servicios', href: '/en/services' },
+    { name: 'Paquetes', href: '/en/services' },
+    { name: 'Sobre Nosotros', href: '/en/about' },
+    { name: 'Contacto', href: '/en/contact' },
   ]
 
   return (
@@ -24,7 +23,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <Link 
-            href="/" 
+            href="/en" 
             className="flex items-center space-x-2 text-foreground hover:scale-105 transition-all"
           >
             <Logo />
@@ -36,7 +35,7 @@ export default function Header() {
               <NavItem key={item.name} name={item.name} href={item.href} />
             ))}
             <Button variant="default" size="md" asChild>
-              <Link href="/contacto">
+              <Link href="/encontacto">
                 Reserva Ahora
               </Link>
             </Button>

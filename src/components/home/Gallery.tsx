@@ -8,7 +8,7 @@ const Gallery = () => {
 			<h2 className="text-6xl font-serif text-black mb-12">Some Shots</h2>
 
 			<div className="grid grid-cols-6 grid-rows-2 gap-4 h-[600px]">
-				<Link href="/gallery" className="col-span-2 row-span-1 relative overflow-hidden rounded-lg group">
+				<Link href="/engallery" className="col-span-2 row-span-1 relative overflow-hidden rounded-lg group">
 					<Image
 						src="/photo_4.webp"
 						alt="Mountain landscape photography"
@@ -17,7 +17,7 @@ const Gallery = () => {
 					/>
 				</Link>
 
-				<Link href="/gallery" className="col-span-2 row-span-1 relative overflow-hidden rounded-lg group">
+				<Link href="/engallery" className="col-span-2 row-span-1 relative overflow-hidden rounded-lg group">
 					<Image
 						src="/photo_3.webp"
 						alt="Portrait photography"
@@ -26,7 +26,7 @@ const Gallery = () => {
 					/>
 				</Link>
 
-				<Link href="/gallery" className="col-span-2 row-span-2 relative overflow-hidden rounded-lg group">
+				<Link href="/engallery" className="col-span-2 row-span-2 relative overflow-hidden rounded-lg group">
 					<Image
 						src="/photo_5.webp"
 						alt="Wedding photography"
@@ -35,7 +35,7 @@ const Gallery = () => {
 					/>
 				</Link>
 
-				<Link href="/gallery" className="col-span-4 row-span-1 relative overflow-hidden rounded-lg group">
+				<Link href="/engallery" className="col-span-4 row-span-1 relative overflow-hidden rounded-lg group">
 					<Image
 						src="/photo_9.webp"
 						alt="Nature photography"

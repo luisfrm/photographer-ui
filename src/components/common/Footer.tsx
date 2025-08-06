@@ -4,21 +4,21 @@ import { Camera, Mail, Phone, Instagram } from 'lucide-react'
 export default function Footer() {
   return (
     <>
-      <footer className="bg-secondary text-secondary-foreground border-t border-border">
+      <footer className="bg-primary text-accent-foreground">
         <div className=" w-full mx-auto px-6 sm:px-6 lg:px-0 py-12 md:max-w-6xl lg:max-w-8xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Logo and Tagline */}
             <div className="space-y-4">
               <Link 
-                href="/" 
-                className="flex items-center space-x-2 text-secondary-foreground"
+                href="/en" 
+                className="flex items-center space-x-2 text-accent-foreground"
               >
                 <Camera className="h-8 w-8 text-primary" />
                 <span className="font-serif text-xl font-semibold tracking-tight">
                   Darianny Salas
                 </span>
               </Link>
-              <p className="text-secondary-foreground/80 text-sm leading-relaxed">
+              <p className="text-accent-foreground/80 text-sm leading-relaxed">
                 Capturando momentos, creando recuerdos.
               </p>
             </div>
@@ -29,14 +29,14 @@ export default function Footer() {
               <div className="space-y-3">
                 <Link 
                   href="mailto:dchsr7@gmail.com"
-                  className="flex items-center space-x-3 text-secondary-foreground/80 hover:text-secondary-foreground transition-colors"
+                  className="flex items-center space-x-3 text-accent-foreground/80 hover:text-accent-foreground transition-colors"
                 >
                   <Mail className="h-4 w-4 text-primary" />
                   <span className="text-sm">dchsr7@gmail.com</span>
                 </Link>
                 <Link 
                   href="tel:+13854365603"
-                  className="flex items-center space-x-3 text-secondary-foreground/80 hover:text-secondary-foreground transition-colors"
+                  className="flex items-center space-x-3 text-accent-foreground/80 hover:text-accent-foreground transition-colors"
                 >
                   <Phone className="h-4 w-4 text-primary" />
                   <span className="text-sm">+1 385 436 5603</span>
@@ -51,7 +51,7 @@ export default function Footer() {
                 href="https://www.instagram.com/dnovagallery"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3 text-secondary-foreground/80 hover:text-secondary-foreground transition-colors group"
+                className="flex items-center space-x-3 text-accent-foreground/80 hover:text-accent-foreground transition-colors group"
               >
                 <Instagram className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
                 <span className="text-sm">Instagram</span>
@@ -70,7 +70,7 @@ export default function Footer() {
                 href="https://rivasdigital.pro" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 transition-colors font-medium"
+                className="text-accent-foreground hover:text-accent-foreground/80 transition-colors font-medium"
               >
                 Rivas Digital
               </Link>
