@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -36,7 +35,7 @@
   --sidebar-accent-foreground: oklch(0.3556 0.0537 249.5509);
   --sidebar-border: oklch(0.9274 0.0178 253.3431);
   --sidebar-ring: oklch(0.3556 0.0537 249.5509);
-  --font-sans: Roboto, sans-serif;
+  --font-sans: var(--font-roboto), system-ui, sans-serif;
   --font-serif: Playfair Display, serif;
   --font-mono: Geist Mono, monospace;
   --radius: 1.05rem;
@@ -85,7 +84,7 @@
   --sidebar-accent-foreground: oklch(0.9829 0.0058 239.8178);
   --sidebar-border: oklch(0.4408 0.0486 261.9585);
   --sidebar-ring: oklch(0.8618 0.0752 14.6472);
-  --font-sans: Montserrat, sans-serif;
+  --font-sans: var(--font-roboto), system-ui, sans-serif;
   --font-serif: Playfair Display, serif;
   --font-mono: Geist Mono, monospace;
   --radius: 1.05rem;
@@ -133,7 +132,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-sans);
+  /* Bind Tailwind font tokens directly to Roboto */
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
@@ -159,43 +159,8 @@
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
 }
 
-body {
-  letter-spacing: var(--tracking-normal);
-}
-
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-    letter-spacing: var(--tracking-normal);
-  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground font-sans; }
 }
 
-button:not(:disabled) {
-  @apply cursor-pointer;
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-scroll {
-  animation: scroll 30s linear infinite;
-}
-
-.max-w-8xl {
-  max-width: 1500px;
-}
-
-@media (min-width: 1600px) {
-  .lg\:max-w-8xl {
-    max-width: 1500px;
-  }
-}
