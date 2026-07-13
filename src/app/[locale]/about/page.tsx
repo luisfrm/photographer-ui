@@ -29,7 +29,6 @@ export default function AboutPage() {
 								<Button
 									variant="outline"
 									size="lg"
-									className="border-black text-black hover:bg-black hover:text-white bg-transparent"
 									asChild
 								>
 									<Link href="/encontact">Get In Touch</Link>
@@ -220,7 +219,6 @@ export default function AboutPage() {
 							size="lg"
 							variant="outline"
 							asChild
-              className='text-black'
 						>
 							<Link href="/es/contact">Get In Touch</Link>
 						</Button>

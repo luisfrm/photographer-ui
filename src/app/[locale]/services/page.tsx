@@ -308,7 +308,7 @@ export default function ServicesPage() {
             schedule your professional photography session.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-black" variant="outline" asChild>
+            <Button size="lg" variant="outline" asChild>
               <Link href="/contact">Get In Touch</Link>
             </Button>
             <Button size="lg" asChild>

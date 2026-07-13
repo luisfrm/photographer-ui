@@ -1,29 +1,27 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Menu } from 'lucide-react'
-import MobileNavigation from './MobileNavigation'
-import Logo from './Logo'
+import Link from "next/link";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import MobileNavigation from "./MobileNavigation";
+import Logo from "./Logo";
+import { getContent, getLocaleFromPathname } from "@/config";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  const navItems = [
-    { name: 'Servicios', href: '/en/services' },
-    { name: 'Paquetes', href: '/en/services' },
-    { name: 'Sobre Nosotros', href: '/en/about' },
-    { name: 'Contacto', href: '/en/contact' },
-  ]
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const locale = getLocaleFromPathname(pathname);
+  const t = getContent(locale);
 
   return (
     <header className="bg-background border-b border-border fixed w-full top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
-      <div className=" w-full mx-auto py-4 max-w-[90vw] md:max-w-6xl lg:max-w-8xl">
+      <div className="w-full mx-auto py-4 max-w-[90vw] md:max-w-6xl lg:max-w-8xl">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
-          <Link 
-            href="/en" 
+          <Link
+            href={`/${locale}`}
             className="flex items-center space-x-2 text-foreground hover:scale-105 transition-all"
           >
             <Logo />
@@ -31,13 +29,11 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
+            {t.nav.map((item) => (
               <NavItem key={item.name} name={item.name} href={item.href} />
             ))}
             <Button variant="default" size="md" asChild>
-              <Link href="/encontacto">
-                Reserva Ahora
-              </Link>
+              <Link href={`/${locale}/contact`}>{t.mobileNav.cta}</Link>
             </Button>
           </nav>
 
@@ -59,24 +55,21 @@ export default function Header() {
       <MobileNavigation
         isOpen={isMenuOpen}
         onOpenChange={setIsMenuOpen}
-        navItems={navItems}
+        navItems={t.nav}
+        locale={locale}
       />
     </header>
-  )
+  );
 }
 
-const NavItem = ({ name, href }: { name: string, href: string }) => {
+const NavItem = ({ name, href }: { name: string; href: string }) => {
   return (
     <Link
       key={name}
       href={href}
-      className="
-        text-foreground/80 hover:text-foreground font-medium text-sm
-        py-2 border-b-2 border-b-transparent hover:border-b-primary
-        hover:scale-105 transition-transform duration-100
-      "
+      className="text-foreground/80 hover:text-foreground font-medium text-sm py-2 border-b-2 border-b-transparent hover:border-b-primary hover:scale-105 transition-transform duration-100"
     >
       {name}
     </Link>
-  )
-}
+  );
+};

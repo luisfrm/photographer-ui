@@ -1,38 +1,43 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle
-} from '@/components/ui/sheet'
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { getContent, type Locale } from "@/config";
 
 interface MobileNavigationProps {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  navItems: Array<{ name: string; href: string }>
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  navItems: Array<{ name: string; href: string }>;
+  locale: Locale;
 }
 
 export default function MobileNavigation({
   isOpen,
   onOpenChange,
   navItems,
+  locale,
 }: MobileNavigationProps) {
+  const t = getContent(locale);
+
   const handleItemClick = () => {
-    onOpenChange(false)
-  }
+    onOpenChange(false);
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-[300px] sm:w-[400px]">
         <SheetHeader className="text-left">
           <SheetTitle className="text-xl font-semibold text-foreground">
-            Menú
+            {t.mobileNav.menuTitle}
           </SheetTitle>
         </SheetHeader>
-        
+
         <div className="flex flex-col space-y-6 mt-8 px-4">
           {/* Navigation Items */}
           <nav className="flex flex-col space-y-4">
@@ -50,9 +55,9 @@ export default function MobileNavigation({
 
           {/* Call to Action Button */}
           <div className="pt-4">
-            <Button asChild className="w-full py-3 text-base font-medium">
-              <Link href="/en/contacto" onClick={handleItemClick}>
-                Reserva Ahora
+            <Button asChild size="lg" className="w-full">
+              <Link href={`/${locale}/contact`} onClick={handleItemClick}>
+                {t.mobileNav.cta}
               </Link>
             </Button>
           </div>
@@ -60,14 +65,14 @@ export default function MobileNavigation({
           {/* Additional Info */}
           <div className="mt-auto pt-8 border-t border-border/50">
             <div className="text-sm text-muted-foreground space-y-2">
-              <p>¿Necesitas ayuda?</p>
+              <p>{t.mobileNav.helpText}</p>
               <p className="font-medium text-foreground">
-                contacto@rivasdigital.com
+                {t.mobileNav.helpEmail}
               </p>
             </div>
           </div>
         </div>
       </SheetContent>
     </Sheet>
-  )
-} 
+  );
+}

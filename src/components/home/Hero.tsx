@@ -1,13 +1,19 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import Image from 'next/image'
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { getContent, getLocaleFromPathname } from "@/config";
 
 export default function Hero() {
+  const pathname = usePathname();
+  const locale = getLocaleFromPathname(pathname);
+  const t = getContent(locale);
+
   return (
     <section className="relative h-[700px] lg:h-screen">
-      <section className='absolute inset-0 w-full h-full'>
+      <section className="absolute inset-0 w-full h-full">
         <div className="relative w-full h-full flex">
           <div className="w-1/2 h-full relative">
             <Image
@@ -32,21 +38,19 @@ export default function Hero() {
       <section className="sm:px-6 lg:px-8 relative flex items-center justify-center h-full">
         <div className="mx-auto w-full lg:w-auto max-w-2xl text-center bg-background/70 lg:bg-background/60 p-6 lg:p-10 rounded-md">
           <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
-            DnovaGallery
+            {t.hero.title}
           </h1>
-          <p className="mt-6 text-lg leading-8 text-foreground/80">
-            No es la <strong>cámara</strong> quien hace al fotógrafo,<br/>
-            es el <strong>fotógrafo</strong> quien hace a la cámara.
-          </p>
+          <p
+            className="mt-6 text-lg leading-8 text-foreground/80"
+            dangerouslySetInnerHTML={{ __html: t.hero.subtitle }}
+          />
           <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-2">
             <Button asChild size="lg">
-              <Link href="/encontacto">
-                Reserva una sesión
-              </Link>
+              <Link href={`/${locale}/contact`}>{t.hero.cta}</Link>
             </Button>
           </div>
         </div>
       </section>
     </section>
-  )
+  );
 }
