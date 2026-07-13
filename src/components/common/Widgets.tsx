@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronUp, MessageCircle, Instagram } from 'lucide-react';
+import { ChevronUp, MessageCircle, Camera as Instagram } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface WidgetsProps {

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Camera, Mail, Phone, Instagram } from 'lucide-react'
+import { Camera, Mail, Phone, Camera as Instagram } from 'lucide-react'
 
 export default function Footer() {
   return (

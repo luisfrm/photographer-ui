@@ -26,14 +26,22 @@ export default async function LocaleLayout({
 
 export async function generateStaticParams() {
   const supabase = await createSupabaseStaticClient();
+
+  if (!supabase) {
+    return [
+      { locale: 'en' },
+      { locale: 'es' }
+    ];
+  }
+
   const { data } = await supabase.from('languages').select('code');
-  
+
   if (!data || data.length === 0) {
     return [
       { locale: 'en' },
       { locale: 'es' }
     ];
   }
-  
+
   return data.map((language) => ({ locale: language.code }));
 }
