@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Geist_Mono, Montserrat, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import "@/styles/globals.css";
-import Header from "@/components/common/Header";
-import Footer from "@/components/common/Footer";
-import Widgets from "@/components/common/Widgets";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -42,10 +39,7 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
       >
-        <Header />
         {children}
-        <Footer />
-        <Widgets />
         <Script
           src="https://assets.onedollarstats.com/stonks.js"
           strategy="afterInteractive"

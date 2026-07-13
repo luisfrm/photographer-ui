@@ -1,4 +1,7 @@
 import { notFound } from "next/navigation";
+import Header from "@/components/common/Header";
+import Footer from "@/components/common/Footer";
+import Widgets from "@/components/common/Widgets";
 
 const LOCALES = ["en", "es"];
 
@@ -15,7 +18,14 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <Header />
+      {children}
+      <Footer />
+      <Widgets />
+    </>
+  );
 }
 
 export function generateStaticParams() {
