@@ -24,7 +24,7 @@ No test or typecheck scripts. No CI workflows, no pre-commit hooks. Verify chang
 - Async Request APIs (`cookies()`, `headers()`, `params`, `searchParams`) are **fully async in v16** — no sync fallback. The code already uses `await`.
 - `src/app/[locale]/layout.tsx` validates the locale (hardcoded fallback `['en', 'es']`) and exposes `generateStaticParams` that reads the `languages` table from Supabase (falls back to `['en','es']` if empty).
 - Home page sets `export const revalidate = 60` (ISR).
-- Supabase clients: `src/lib/supabase/client.ts` (browser) and `src/lib/supabase/server.ts` (`createSupabaseServerClient` with cookies, `createSupabaseStaticClient` for build-time reads).
+- Supabase clients: `src/lib/supabase/client.ts` (browser) and `src/lib/supabase/server.ts` (server with cookies).
 - Component layout: `src/components/ui/` (shadcn primitives), `src/components/common/` (Header, Footer, Widgets, etc.), `src/components/home/` (page sections).
 - Path alias: `@/*` → `./src/*`. shadcn aliases: components → `@/components`, ui → `@/components/ui`, lib → `@/lib`, utils → `@/lib/utils`, hooks → `@/hooks`.
 
@@ -34,9 +34,9 @@ Create `.env.local` at the repo root (Next loads it automatically; no `.env.exam
 | Variable | Required for | Notes |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | All Supabase reads (static params, server/client) | Public, must be prefixed `NEXT_PUBLIC_` to be visible in the browser. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All Supabase reads | Public anon key, same prefix rule. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | All Supabase reads | Public publishable key, same prefix rule. |
 
-Without these, `createSupabaseStaticClient` and `createSupabaseServerClient` will receive `undefined` and Supabase calls will throw. There is no server-only service role key in use today.
+Without these, Supabase calls will throw. There is no server-only service role key in use today.
 
 ## Styling
 - Tailwind v4 via `@tailwindcss/postcss` (no `tailwind.config.*`; config is in `postcss.config.mjs`).

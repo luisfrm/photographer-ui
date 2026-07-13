@@ -1,18 +1,10 @@
-
 import { createServerClient } from "@supabase/ssr";
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from "next/headers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-export const hasSupabaseEnv = Boolean(supabaseUrl && supabaseKey);
-
-export const createSupabaseServerClient = async () => {
-  if (!hasSupabaseEnv) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  }
-  const cookieStore = await cookies()
+export const createClient = (cookieStore: Awaited<ReturnType<typeof cookies>>) => {
   return createServerClient(
     supabaseUrl!,
     supabaseKey!,
@@ -33,11 +25,4 @@ export const createSupabaseServerClient = async () => {
       },
     },
   );
-};
-
-export const createSupabaseStaticClient = async (): Promise<SupabaseClient | null> => {
-  if (!hasSupabaseEnv) {
-    return null;
-  }
-  return createClient(supabaseUrl!, supabaseKey!);
 };

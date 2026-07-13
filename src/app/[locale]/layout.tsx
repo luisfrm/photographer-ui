@@ -1,5 +1,6 @@
-import { notFound } from 'next/navigation';
-import { createSupabaseStaticClient } from '@/lib/supabase/server';
+import { notFound } from "next/navigation";
+
+const LOCALES = ["en", "es"];
 
 export default async function LocaleLayout({
   children,
@@ -9,39 +10,14 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  
-  // Validar que el locale sea válido
-  // const supabase = await createSupabaseStaticClient();
-  // const { data } = await supabase.from('languages').select('code');
-  // const validLocales = data?.map(lang => lang.code) || ['en', 'es'];
 
-  const validLocales = ['en', 'es'];
-  
-  if (!validLocales.includes(locale)) {
-    notFound(); // Esto dispara el 404
+  if (!LOCALES.includes(locale)) {
+    notFound();
   }
 
   return <>{children}</>;
 }
 
-export async function generateStaticParams() {
-  const supabase = await createSupabaseStaticClient();
-
-  if (!supabase) {
-    return [
-      { locale: 'en' },
-      { locale: 'es' }
-    ];
-  }
-
-  const { data } = await supabase.from('languages').select('code');
-
-  if (!data || data.length === 0) {
-    return [
-      { locale: 'en' },
-      { locale: 'es' }
-    ];
-  }
-
-  return data.map((language) => ({ locale: language.code }));
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
 }
