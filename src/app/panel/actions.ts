@@ -3,11 +3,28 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
+import { transformUser, type UserProfile } from "@/lib/supabase/user";
 
 export type AuthFormState = {
   error: string | null;
   success: string | null;
 };
+
+export async function getCurrentUserAction(): Promise<UserProfile | null> {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return null;
+  }
+
+  return transformUser(user);
+}
 
 export async function loginAction(
   _prevState: AuthFormState | null,
@@ -79,4 +96,13 @@ export async function signUpAction(
     error: null,
     success: "Account created successfully! Please check your email to verify your account.",
   };
+}
+
+export async function signOutAction() {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  await supabase.auth.signOut();
+
+  redirect("/panel/login");
 }
