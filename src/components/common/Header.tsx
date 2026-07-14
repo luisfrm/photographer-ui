@@ -67,7 +67,7 @@ const NavItem = ({ name, href }: { name: string; href: string }) => {
     <Link
       key={name}
       href={href}
-      className="text-foreground/80 hover:text-foreground font-medium text-sm py-2 border-b-2 border-b-transparent hover:border-b-primary hover:scale-105 transition-transform duration-100"
+      className="text-foreground/80 hover:text-foreground font-medium text-sm py-2 border-b-2 border-b-transparent hover:border-b-primary"
     >
       {name}
     </Link>

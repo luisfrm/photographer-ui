@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Montserrat, Playfair_Display } from "next/font/google";
 import Script from "next/script";
+import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
 
 const montserrat = Montserrat({
@@ -37,9 +38,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserrat.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
+        className={`${montserrat.variable} ${geistMono.variable} ${playfairDisplay.variable} font-sans antialiased`}
       >
         {children}
+        <Toaster richColors position="top-center" />
         <Script
           src="https://assets.onedollarstats.com/stonks.js"
           strategy="afterInteractive"
