@@ -32,7 +32,7 @@ export async function loginAction(
     return { error: error.message, success: null };
   }
 
-  redirect("/panel/(protected)/dashboard");
+  redirect("/panel/dashboard");
 }
 
 export async function signUpAction(
