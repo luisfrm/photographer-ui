@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const emptyForm: FormFields = {
 export default function SignUpPage() {
   const [form, setForm] = useState<FormFields>(emptyForm);
   const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -51,6 +53,7 @@ export default function SignUpPage() {
       toast.error(result.error);
     } else if (result.success) {
       toast.success(result.success);
+      router.push("/panel/login");
     }
 
     setIsPending(false);

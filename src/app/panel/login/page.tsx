@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { loginAction } from "../actions";
 
 type FormFields = {
@@ -15,14 +16,23 @@ type FormFields = {
   password: string;
 };
 
-const emptyForm: FormFields = {
-  email: "",
-  password: "",
-};
+const REMEMBERED_EMAIL_KEY = "rememberedEmail";
+
+function getInitialForm(): FormFields {
+  if (typeof window === "undefined") return { email: "", password: "" };
+  const saved = localStorage.getItem(REMEMBERED_EMAIL_KEY);
+  return { email: saved ?? "", password: "" };
+}
+
+function getInitialRememberMe(): boolean {
+  if (typeof window === "undefined") return false;
+  return !!localStorage.getItem(REMEMBERED_EMAIL_KEY);
+}
 
 export default function LoginPage() {
-  const [form, setForm] = useState<FormFields>(emptyForm);
+  const [form, setForm] = useState<FormFields>(getInitialForm);
   const [isPending, setIsPending] = useState(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(getInitialRememberMe);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -31,6 +41,13 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsPending(true);
+
+    // Save or clear remembered email
+    if (rememberMe) {
+      localStorage.setItem(REMEMBERED_EMAIL_KEY, form.email);
+    } else {
+      localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+    }
 
     const formData = new FormData();
     formData.set("email", form.email);
@@ -106,6 +123,17 @@ export default function LoginPage() {
               value={form.password}
               onChange={onChange}
             />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="remember-me"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked === true)}
+            />
+            <Label htmlFor="remember-me" className="text-sm text-gray-500 cursor-pointer">
+              Remember me
+            </Label>
           </div>
 
           <Button
