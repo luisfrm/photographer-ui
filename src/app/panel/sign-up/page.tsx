@@ -1,10 +1,61 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Camera } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
+import { signUpAction } from "../actions";
+
+type FormFields = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+};
+
+const emptyForm: FormFields = {
+  name: "",
+  email: "",
+  phone: "",
+  password: "",
+  confirmPassword: "",
+};
 
 export default function SignUpPage() {
+  const [form, setForm] = useState<FormFields>(emptyForm);
+  const [isPending, setIsPending] = useState(false);
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsPending(true);
+
+    const formData = new FormData();
+    formData.set("name", form.name);
+    formData.set("email", form.email);
+    formData.set("phone", form.phone);
+    formData.set("password", form.password);
+    formData.set("confirm-password", form.confirmPassword);
+
+    const result = await signUpAction(null, formData);
+
+    if (result.error) {
+      toast.error(result.error);
+    } else if (result.success) {
+      toast.success(result.success);
+    }
+
+    setIsPending(false);
+  }
+
   return (
     <div className="w-full max-w-md">
       {/* Logo */}
@@ -28,16 +79,20 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-black">
               Full name
             </Label>
             <Input
               id="name"
+              name="name"
               type="text"
               placeholder="John Doe"
               className="border-gray-300"
+              required
+              value={form.name}
+              onChange={onChange}
             />
           </div>
 
@@ -47,9 +102,29 @@ export default function SignUpPage() {
             </Label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="you@example.com"
               className="border-gray-300"
+              required
+              value={form.email}
+              onChange={onChange}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-black">
+              Phone number
+            </Label>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="+1 (555) 123-4567"
+              className="border-gray-300"
+              required
+              value={form.phone}
+              onChange={onChange}
             />
           </div>
 
@@ -57,28 +132,40 @@ export default function SignUpPage() {
             <Label htmlFor="password" className="text-black">
               Password
             </Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
+              name="password"
               placeholder="••••••••"
               className="border-gray-300"
+              required
+              value={form.password}
+              onChange={onChange}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirm-password" className="text-black">
+            <Label htmlFor="confirmPassword" className="text-black">
               Confirm password
             </Label>
-            <Input
-              id="confirm-password"
-              type="password"
+            <PasswordInput
+              id="confirmPassword"
+              name="confirmPassword"
               placeholder="••••••••"
               className="border-gray-300"
+              required
+              value={form.confirmPassword}
+              onChange={onChange}
             />
           </div>
 
-          <Button type="submit" size="lg" className="w-full" hoverScale>
-            Create account
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            status={isPending ? "loading" : "idle"}
+            disabled={isPending}
+          >
+            {isPending ? "Creating account..." : "Create account"}
           </Button>
         </form>
 

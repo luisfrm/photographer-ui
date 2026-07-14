@@ -1,10 +1,50 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Camera } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
+import { loginAction } from "../actions";
+
+type FormFields = {
+  email: string;
+  password: string;
+};
+
+const emptyForm: FormFields = {
+  email: "",
+  password: "",
+};
 
 export default function LoginPage() {
+  const [form, setForm] = useState<FormFields>(emptyForm);
+  const [isPending, setIsPending] = useState(false);
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsPending(true);
+
+    const formData = new FormData();
+    formData.set("email", form.email);
+    formData.set("password", form.password);
+
+    const result = await loginAction(null, formData);
+
+    if (result.error) {
+      toast.error(result.error);
+    }
+
+    setIsPending(false);
+  }
+
   return (
     <div className="w-full max-w-md">
       {/* Logo */}
@@ -28,16 +68,20 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-black">
               Email
             </Label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="you@example.com"
               className="border-gray-300"
+              required
+              value={form.email}
+              onChange={onChange}
             />
           </div>
 
@@ -53,16 +97,25 @@ export default function LoginPage() {
                 Forgot password?
               </Link>
             </div>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
+              name="password"
               placeholder="••••••••"
               className="border-gray-300"
+              required
+              value={form.password}
+              onChange={onChange}
             />
           </div>
 
-          <Button type="submit" size="lg" className="w-full" hoverScale>
-            Sign in
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            status={isPending ? "loading" : "idle"}
+            disabled={isPending}
+          >
+            {isPending ? "Signing in..." : "Sign in"}
           </Button>
         </form>
 
