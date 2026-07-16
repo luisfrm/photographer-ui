@@ -3,7 +3,7 @@ export interface NavItem {
   href: string;
 }
 
-export interface HeroContent {
+export interface StaticHeroContent {
   title: string;
   subtitle: string;
   cta: string;
@@ -82,7 +82,7 @@ export interface MobileNavContent {
 
 export interface SiteContent {
   nav: NavItem[];
-  hero: HeroContent;
+  hero: StaticHeroContent;
   about: AboutContent;
   services: ServicesContent;
   pricing: PricingContent;
