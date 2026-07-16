@@ -4,6 +4,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { transformUser, type UserProfile } from "@/lib/supabase/user";
+import { deleteR2Objects } from "@/lib/r2/upload";
+import type {
+  CmsHeroContent,
+  CmsHeroLocale,
+  CmsSectionData,
+  CmsSectionKey,
+  Locale,
+} from "@/types/cms";
 
 // ─── Auth Types ─────────────────────────────────────────────
 
@@ -113,15 +121,14 @@ export async function signOutAction() {
 
 // ─── Content Types ──────────────────────────────────────────
 
-export type HeroContent = {
-  title: string;
-  subtitle: string;
-  cta: string;
-  ctaUrl: string;
-  ctaNewTab: boolean;
-  backgroundImage1: string;
-  backgroundImage2: string;
-};
+// Re-export CMS types for convenience
+export type {
+  CmsHeroContent,
+  CmsHeroLocale,
+  CmsSectionData,
+  CmsSectionKey,
+  Locale,
+} from "@/types/cms";
 
 type ContentResult<T> = {
   data: T | null;
@@ -131,12 +138,20 @@ type ContentResult<T> = {
 // ─── Content Actions ────────────────────────────────────────
 
 /**
- * Load content for a given section and locale from Supabase
+ * Load content for a given section from Supabase.
+ * Single row per section — no locale parameter needed.
  */
+export async function getContentAction<
+  K extends CmsSectionKey = CmsSectionKey,
+  T extends CmsSectionData[K] = CmsSectionData[K],
+>(section: K): Promise<ContentResult<T>>;
 export async function getContentAction<T = Record<string, unknown>>(
-  section: string,
-  locale: string = "en"
-): Promise<ContentResult<T>> {
+  section: string
+): Promise<ContentResult<T>>;
+export async function getContentAction<
+  K extends CmsSectionKey = CmsSectionKey,
+  T extends CmsSectionData[K] = CmsSectionData[K],
+>(section: K | string): Promise<ContentResult<T>> {
   try {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
@@ -145,11 +160,9 @@ export async function getContentAction<T = Record<string, unknown>>(
       .from("content")
       .select("data")
       .eq("section", section)
-      .eq("locale", locale)
       .single();
 
     if (error) {
-      // PGRST116 = no rows found, return null data without error
       if (error.code === "PGRST116") {
         return { data: null, error: null };
       }
@@ -164,23 +177,30 @@ export async function getContentAction<T = Record<string, unknown>>(
 }
 
 /**
- * Save content for a given section and locale (upsert)
+ * Save content for a given section (upsert).
+ * Single row per section — replaces the entire data object.
  */
+export async function saveContentAction<
+  K extends CmsSectionKey = CmsSectionKey,
+  T extends CmsSectionData[K] = CmsSectionData[K],
+>(section: K, data: T): Promise<ContentResult<T>>;
 export async function saveContentAction<T = object>(
   section: string,
-  data: T,
-  locale: string = "en"
-): Promise<ContentResult<T>> {
+  data: T
+): Promise<ContentResult<T>>;
+export async function saveContentAction<
+  K extends CmsSectionKey = CmsSectionKey,
+  T extends CmsSectionData[K] = CmsSectionData[K],
+>(section: K | string, data: T | object): Promise<ContentResult<T>> {
   try {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 
-    // Atomic upsert — avoids race condition of check-then-insert/update
     const result = await supabase
       .from("content")
       .upsert(
-        { section, locale, data, updated_at: new Date().toISOString() },
-        { onConflict: "section,locale" }
+        { section, data, updated_at: new Date().toISOString() },
+        { onConflict: "section" }
       )
       .select("data")
       .single();
@@ -196,41 +216,137 @@ export async function saveContentAction<T = object>(
   }
 }
 
-/**
- * Load hero content with defaults
- */
-export async function getHeroContent(locale: string = "en"): Promise<HeroContent> {
-  const defaults: HeroContent = {
-    title: "DnovaGallery",
-    subtitle:
-      "It's not the <strong>camera</strong> who makes the photographer, it's the <strong>photographer</strong> who makes the camera.",
-    cta: "Book a session",
-    ctaUrl: "/contact",
-    ctaNewTab: false,
-    backgroundImage1: "",
-    backgroundImage2: "",
-  };
+// ─── Hero-Specific Actions ──────────────────────────────────
 
-  const { data, error } = await getContentAction<HeroContent>("home.hero", locale);
+/** Default hero content with fallback values */
+const HERO_DEFAULTS: CmsHeroContent = {
+  backgroundImage1: "",
+  backgroundImage2: "",
+  locales: {
+    en: {
+      title: "DnovaGallery",
+      subtitle:
+        "It's not the <strong>camera</strong> who makes the photographer, it's the <strong>photographer</strong> who makes the camera.",
+      cta: "Book a session",
+      ctaUrl: "/contact",
+      ctaNewTab: false,
+    },
+    es: {
+      title: "DnovaGallery",
+      subtitle:
+        "No es la <strong>cámara</strong> quien hace al fotógrafo, es el <strong>fotógrafo</strong> quien hace la cámara.",
+      cta: "Reserva una sesión",
+      ctaUrl: "/contact",
+      ctaNewTab: false,
+    },
+  },
+};
+
+/**
+ * Load hero content with defaults.
+ */
+export async function getHeroContent(): Promise<CmsHeroContent> {
+  const { data, error } = await getContentAction("home.hero");
 
   if (error || !data) {
-    return defaults;
+    return HERO_DEFAULTS;
   }
 
-  return { ...defaults, ...data };
+  return {
+    ...HERO_DEFAULTS,
+    ...data,
+    locales: {
+      en: { ...HERO_DEFAULTS.locales.en, ...(data as CmsHeroContent).locales?.en },
+      es: { ...HERO_DEFAULTS.locales.es, ...(data as CmsHeroContent).locales?.es },
+    },
+  };
 }
 
 /**
- * Save hero content
+ * Save the entire hero content (shared images + all locales).
  */
 export async function saveHeroContent(
-  data: HeroContent,
-  locale: string = "en"
+  data: CmsHeroContent
 ): Promise<{ success: boolean; error: string | null }> {
-  const { error } = await saveContentAction("home.hero", data, locale);
+  const { error } = await saveContentAction("home.hero", data);
 
   if (error) {
     return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+/**
+ * Save only one locale's content for the hero section.
+ * Preserves the other locale's data and shared images.
+ */
+export async function saveHeroLocaleContent(
+  locale: Locale,
+  localeData: CmsHeroLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getHeroContent();
+
+  const updated: CmsHeroContent = {
+    ...current,
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("home.hero", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+/**
+ * Save hero images (R2 keys).
+ * Flow: update DB → then delete old images from R2.
+ * This ensures we never lose images if DB update fails.
+ *
+ * @param backgroundImage1 - New R2 key for image 1
+ * @param backgroundImage2 - New R2 key for image 2
+ * @param oldKey1 - Old R2 key to delete after successful save (if replaced)
+ * @param oldKey2 - Old R2 key to delete after successful save (if replaced)
+ */
+export async function saveHeroImages(
+  backgroundImage1: string,
+  backgroundImage2: string,
+  oldKey1?: string,
+  oldKey2?: string
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getHeroContent();
+
+  const updated: CmsHeroContent = {
+    ...current,
+    backgroundImage1,
+    backgroundImage2,
+  };
+
+  // Step 1: Update DB with new keys
+  const { error } = await saveContentAction("home.hero", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  // Step 2: DB update succeeded — now safe to delete old images from R2
+  const keysToDelete = [oldKey1, oldKey2].filter(
+    (key) => key && key.length > 0 && key !== backgroundImage1 && key !== backgroundImage2
+  ) as string[];
+
+  if (keysToDelete.length > 0) {
+    try {
+      await deleteR2Objects(keysToDelete);
+    } catch {
+      // Log but don't fail — old images are orphaned but not harmful
+      console.error("Failed to delete old R2 images:", keysToDelete);
+    }
   }
 
   return { success: true, error: null };

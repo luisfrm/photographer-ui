@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import HeroEditor from "@/components/panel/editors/HeroEditor";
-import { getHeroContent, type HeroContent } from "@/app/panel/actions";
+import { getHeroContent } from "@/app/panel/actions";
+import type { CmsHeroContent } from "@/types/cms";
 
 type ContentSection = {
   id: string;
@@ -79,7 +80,7 @@ const contentSections: ContentSection[] = [
 function renderEditor(
   sectionId: string,
   subsectionId: string,
-  heroData: HeroContent | null
+  heroData: CmsHeroContent | null
 ) {
   // Home > Hero
   if (sectionId === "home" && subsectionId === "hero") {
@@ -111,7 +112,7 @@ export default function ContentPage() {
   const [expandedSection, setExpandedSection] = useState<string | null>("home");
   const [selectedSubsection, setSelectedSubsection] = useState<string | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const [heroData, setHeroData] = useState<HeroContent | null>(null);
+  const [heroData, setHeroData] = useState<CmsHeroContent | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const heroLoadedRef = useRef(false);
 
@@ -124,7 +125,7 @@ export default function ContentPage() {
     ) {
       heroLoadedRef.current = true;
       setIsLoadingContent(true);
-      getHeroContent("en").then((data) => {
+      getHeroContent().then((data) => {
         setHeroData(data);
         setIsLoadingContent(false);
       });
