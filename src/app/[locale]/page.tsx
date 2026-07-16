@@ -16,7 +16,7 @@ export default async function Home({ params }: PageProps) {
     <main className="flex flex-col min-h-screen">
       <Hero locale={locale as "en" | "es"} />
       <InfiniteCarousel />
-      <About />
+      <About locale={locale as "en" | "es"} />
       <Gallery />
       <Pricing />
       <Contact />

@@ -10,6 +10,8 @@ import type {
   CmsHeroLocale,
   CmsCarouselContent,
   CmsImage,
+  CmsAboutPreviewContent,
+  CmsAboutPreviewLocale,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -129,6 +131,8 @@ export type {
   CmsHeroLocale,
   CmsCarouselContent,
   CmsImage,
+  CmsAboutPreviewContent,
+  CmsAboutPreviewLocale,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -383,6 +387,107 @@ export async function saveCarouselContent(
       } catch {
         console.error("Failed to delete old carousel images:", keysToDelete);
       }
+    }
+  }
+
+  return { success: true, error: null };
+}
+
+// --- About Preview-Specific Actions ---
+
+const ABOUT_PREVIEW_DEFAULTS: CmsAboutPreviewContent = {
+  image: "",
+  locales: {
+    en: {
+      title: "",
+      description: "",
+      cta: "",
+      ctaUrl: "/en/gallery",
+      ctaNewTab: false,
+    },
+    es: {
+      title: "",
+      description: "",
+      cta: "",
+      ctaUrl: "/es/gallery",
+      ctaNewTab: false,
+    },
+  },
+};
+
+/**
+ * Load about preview content with defaults.
+ */
+export async function getAboutPreviewContent(): Promise<CmsAboutPreviewContent> {
+  const { data, error } = await getContentAction("home.about-preview");
+
+  if (error || !data) {
+    return ABOUT_PREVIEW_DEFAULTS;
+  }
+
+  return {
+    ...ABOUT_PREVIEW_DEFAULTS,
+    ...data,
+    locales: {
+      en: { ...ABOUT_PREVIEW_DEFAULTS.locales.en, ...(data as CmsAboutPreviewContent).locales?.en },
+      es: { ...ABOUT_PREVIEW_DEFAULTS.locales.es, ...(data as CmsAboutPreviewContent).locales?.es },
+    },
+  };
+}
+
+/**
+ * Save about preview content for a single locale.
+ * Preserves the other locale's data and shared image.
+ */
+export async function saveAboutPreviewLocaleContent(
+  locale: Locale,
+  localeData: CmsAboutPreviewLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getAboutPreviewContent();
+
+  const updated: CmsAboutPreviewContent = {
+    ...current,
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("home.about-preview", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+/**
+ * Save the shared about preview image (R2 key).
+ * Flow: update DB -> then delete old image from R2.
+ */
+export async function saveAboutPreviewImage(
+  newImageKey: string,
+  oldKey?: string
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getAboutPreviewContent();
+
+  const updated: CmsAboutPreviewContent = {
+    ...current,
+    image: newImageKey,
+  };
+
+  const { error } = await saveContentAction("home.about-preview", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  if (oldKey && oldKey.length > 0 && oldKey !== newImageKey) {
+    try {
+      await deleteR2Objects([oldKey]);
+    } catch {
+      console.error("Failed to delete old R2 image:", oldKey);
     }
   }
 

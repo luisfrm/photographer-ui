@@ -83,13 +83,21 @@ export interface CmsCarouselContent extends CmsContentBase {
   images: CmsImage[];
 }
 
-/** Home About Preview section: short about blurb on homepage */
-export interface CmsAboutPreviewContent extends CmsContentBase {
+/** About preview locale-specific content */
+export interface CmsAboutPreviewLocale {
   title: string;
   description: string;
-  image?: string;
-  cta?: string;
-  ctaUrl?: string;
+  cta: string;
+  ctaUrl: string;
+  ctaNewTab: boolean;
+}
+
+/** Home About Preview section: shared image + per-locale text content */
+export interface CmsAboutPreviewContent extends CmsContentBase {
+  image: string;
+  locales: {
+    [K in Locale]: CmsAboutPreviewLocale;
+  };
 }
 
 /** Home Gallery section: photo gallery grid */
