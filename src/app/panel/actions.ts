@@ -10,8 +10,8 @@ import type {
   CmsHeroLocale,
   CmsCarouselContent,
   CmsImage,
-  CmsAboutPreviewContent,
-  CmsAboutPreviewLocale,
+  CmsAboutContent,
+  CmsAboutLocale,
   CmsGalleryContent,
   CmsSectionData,
   CmsSectionKey,
@@ -132,8 +132,8 @@ export type {
   CmsHeroLocale,
   CmsCarouselContent,
   CmsImage,
-  CmsAboutPreviewContent,
-  CmsAboutPreviewLocale,
+  CmsAboutContent,
+  CmsAboutLocale,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -394,9 +394,9 @@ export async function saveCarouselContent(
   return { success: true, error: null };
 }
 
-// --- About Preview-Specific Actions ---
+// --- About-Specific Actions ---
 
-const ABOUT_PREVIEW_DEFAULTS: CmsAboutPreviewContent = {
+const ABOUT_DEFAULTS: CmsAboutContent = {
   image: "",
   locales: {
     en: {
@@ -417,36 +417,36 @@ const ABOUT_PREVIEW_DEFAULTS: CmsAboutPreviewContent = {
 };
 
 /**
- * Load about preview content with defaults.
+ * Load about content with defaults.
  */
-export async function getAboutPreviewContent(): Promise<CmsAboutPreviewContent> {
-  const { data, error } = await getContentAction("home.about-preview");
+export async function getAboutContent(): Promise<CmsAboutContent> {
+  const { data, error } = await getContentAction("home.about");
 
   if (error || !data) {
-    return ABOUT_PREVIEW_DEFAULTS;
+    return ABOUT_DEFAULTS;
   }
 
   return {
-    ...ABOUT_PREVIEW_DEFAULTS,
+    ...ABOUT_DEFAULTS,
     ...data,
     locales: {
-      en: { ...ABOUT_PREVIEW_DEFAULTS.locales.en, ...(data as CmsAboutPreviewContent).locales?.en },
-      es: { ...ABOUT_PREVIEW_DEFAULTS.locales.es, ...(data as CmsAboutPreviewContent).locales?.es },
+      en: { ...ABOUT_DEFAULTS.locales.en, ...(data as CmsAboutContent).locales?.en },
+      es: { ...ABOUT_DEFAULTS.locales.es, ...(data as CmsAboutContent).locales?.es },
     },
   };
 }
 
 /**
- * Save about preview content for a single locale.
+ * Save about content for a single locale.
  * Preserves the other locale's data and shared image.
  */
-export async function saveAboutPreviewLocaleContent(
+export async function saveAboutLocaleContent(
   locale: Locale,
-  localeData: CmsAboutPreviewLocale
+  localeData: CmsAboutLocale
 ): Promise<{ success: boolean; error: string | null }> {
-  const current = await getAboutPreviewContent();
+  const current = await getAboutContent();
 
-  const updated: CmsAboutPreviewContent = {
+  const updated: CmsAboutContent = {
     ...current,
     locales: {
       ...current.locales,
@@ -454,7 +454,7 @@ export async function saveAboutPreviewLocaleContent(
     },
   };
 
-  const { error } = await saveContentAction("home.about-preview", updated);
+  const { error } = await saveContentAction("home.about", updated);
 
   if (error) {
     return { success: false, error };
@@ -464,21 +464,21 @@ export async function saveAboutPreviewLocaleContent(
 }
 
 /**
- * Save the shared about preview image (R2 key).
+ * Save the shared about image (R2 key).
  * Flow: update DB -> then delete old image from R2.
  */
-export async function saveAboutPreviewImage(
+export async function saveAboutImage(
   newImageKey: string,
   oldKey?: string
 ): Promise<{ success: boolean; error: string | null }> {
-  const current = await getAboutPreviewContent();
+  const current = await getAboutContent();
 
-  const updated: CmsAboutPreviewContent = {
+  const updated: CmsAboutContent = {
     ...current,
     image: newImageKey,
   };
 
-  const { error } = await saveContentAction("home.about-preview", updated);
+  const { error } = await saveContentAction("home.about", updated);
 
   if (error) {
     return { success: false, error };

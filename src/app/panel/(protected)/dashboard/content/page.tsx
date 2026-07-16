@@ -15,18 +15,18 @@ import {
 import { cn } from "@/lib/utils";
 import HeroEditor from "@/components/panel/editors/HeroEditor";
 import CarouselEditor from "@/components/panel/editors/CarouselEditor";
-import AboutPreviewEditor from "@/components/panel/editors/AboutPreviewEditor";
+import AboutEditor from "@/components/panel/editors/AboutEditor";
 import GalleryEditor from "@/components/panel/editors/GalleryEditor";
 import {
   getHeroContent,
   getCarouselContent,
-  getAboutPreviewContent,
+  getAboutContent,
   getGalleryContent,
 } from "@/app/panel/actions";
 import type {
   CmsHeroContent,
   CmsImage,
-  CmsAboutPreviewContent,
+  CmsAboutContent,
   CmsGalleryContent,
 } from "@/types/cms";
 
@@ -47,7 +47,7 @@ const contentSections: ContentSection[] = [
     subsections: [
       { id: "hero", name: "Hero" },
       { id: "carousel", name: "Infinite Carousel" },
-      { id: "about-preview", name: "About Preview" },
+      { id: "about", name: "About" },
       { id: "gallery", name: "Gallery" },
       { id: "pricing", name: "Pricing (from Services)" },
       { id: "contact-preview", name: "Contact Preview" },
@@ -95,7 +95,7 @@ function renderEditor(
   subsectionId: string,
   heroData: CmsHeroContent | null,
   carouselData: CmsImage[] | null,
-  aboutPreviewData: CmsAboutPreviewContent | null,
+  aboutData: CmsAboutContent | null,
   galleryData: CmsGalleryContent | null
 ) {
   // Home > Hero
@@ -108,9 +108,9 @@ function renderEditor(
     return <CarouselEditor initialData={carouselData ?? undefined} />;
   }
 
-  // Home > About Preview
-  if (sectionId === "home" && subsectionId === "about-preview") {
-    return <AboutPreviewEditor initialData={aboutPreviewData ?? undefined} />;
+  // Home > About
+  if (sectionId === "home" && subsectionId === "about") {
+    return <AboutEditor initialData={aboutData ?? undefined} />;
   }
 
   // Home > Gallery
@@ -145,12 +145,12 @@ export default function ContentPage() {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [heroData, setHeroData] = useState<CmsHeroContent | null>(null);
   const [carouselData, setCarouselData] = useState<CmsImage[] | null>(null);
-  const [aboutPreviewData, setAboutPreviewData] = useState<CmsAboutPreviewContent | null>(null);
+  const [aboutData, setAboutData] = useState<CmsAboutContent | null>(null);
   const [galleryData, setGalleryData] = useState<CmsGalleryContent | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const heroLoadedRef = useRef(false);
   const carouselLoadedRef = useRef(false);
-  const aboutPreviewLoadedRef = useRef(false);
+  const aboutLoadedRef = useRef(false);
   const galleryLoadedRef = useRef(false);
 
   // Load content when editor is selected
@@ -183,13 +183,13 @@ export default function ContentPage() {
 
     if (
       selectedSectionId === "home" &&
-      selectedSubsection === "about-preview" &&
-      !aboutPreviewLoadedRef.current
+      selectedSubsection === "about" &&
+      !aboutLoadedRef.current
     ) {
-      aboutPreviewLoadedRef.current = true;
+      aboutLoadedRef.current = true;
       setIsLoadingContent(true);
-      getAboutPreviewContent().then((data) => {
-        setAboutPreviewData(data);
+      getAboutContent().then((data) => {
+        setAboutData(data);
         setIsLoadingContent(false);
       });
     }
@@ -223,7 +223,7 @@ export default function ContentPage() {
     // Reset loaded flags so re-entering the editor always fetches fresh data
     heroLoadedRef.current = false;
     carouselLoadedRef.current = false;
-    aboutPreviewLoadedRef.current = false;
+    aboutLoadedRef.current = false;
     galleryLoadedRef.current = false;
   };
 
@@ -265,7 +265,7 @@ export default function ContentPage() {
               <span className="text-sm text-gray-500">Loading content...</span>
             </div>
           ) : (
-            renderEditor(selectedSectionId!, selectedSubsection, heroData, carouselData, aboutPreviewData, galleryData)
+            renderEditor(selectedSectionId!, selectedSubsection, heroData, carouselData, aboutData, galleryData)
           )}
         </div>
       </div>

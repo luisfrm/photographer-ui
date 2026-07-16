@@ -3,7 +3,7 @@ import { H3 } from "../common/Titles";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { getAboutPreviewContent } from "@/app/panel/actions";
+import { getAboutContent } from "@/app/panel/actions";
 import { getR2KeyUrl } from "@/lib/r2/url";
 import type { Locale } from "@/types/cms";
 
@@ -12,7 +12,7 @@ type AboutProps = {
 };
 
 export default async function About({ locale }: AboutProps) {
-  const about = await getAboutPreviewContent();
+  const about = await getAboutContent();
   const localeData = about.locales[locale];
 
   // Required fields — hide section if any is missing

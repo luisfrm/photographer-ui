@@ -83,8 +83,8 @@ export interface CmsCarouselContent extends CmsContentBase {
   images: CmsImage[];
 }
 
-/** About preview locale-specific content */
-export interface CmsAboutPreviewLocale {
+/** About locale-specific content */
+export interface CmsAboutLocale {
   title: string;
   description: string;
   cta: string;
@@ -92,11 +92,11 @@ export interface CmsAboutPreviewLocale {
   ctaNewTab: boolean;
 }
 
-/** Home About Preview section: shared image + per-locale text content */
-export interface CmsAboutPreviewContent extends CmsContentBase {
+/** Home About section: shared image + per-locale text content */
+export interface CmsAboutContent extends CmsContentBase {
   image: string;
   locales: {
-    [K in Locale]: CmsAboutPreviewLocale;
+    [K in Locale]: CmsAboutLocale;
   };
 }
 
@@ -257,7 +257,7 @@ export type CmsSectionData = {
   // Home
   "home.hero": CmsHeroContent;
   "home.carousel": CmsCarouselContent;
-  "home.about-preview": CmsAboutPreviewContent;
+  "home.about": CmsAboutContent;
   "home.gallery": CmsGalleryContent;
   "home.contact-preview": CmsContactPreviewContent;
   // Services
@@ -285,7 +285,7 @@ export type CmsSectionKey = keyof CmsSectionData;
 export const CMS_SECTION_KEYS: CmsSectionKey[] = [
   "home.hero",
   "home.carousel",
-  "home.about-preview",
+  "home.about",
   "home.gallery",
   "home.contact-preview",
   "services.packages",

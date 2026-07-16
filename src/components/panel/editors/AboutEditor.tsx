@@ -12,18 +12,18 @@ import { toast } from "sonner";
 import ImageUpload from "@/components/panel/ImageUpload";
 import { getR2KeyUrl } from "@/lib/r2/url";
 import {
-  saveAboutPreviewLocaleContent,
-  saveAboutPreviewImage,
+  saveAboutLocaleContent,
+  saveAboutImage,
 } from "@/app/panel/actions";
 import type {
-  CmsAboutPreviewContent,
-  CmsAboutPreviewLocale,
+  CmsAboutContent,
+  CmsAboutLocale,
   Locale,
 } from "@/types/cms";
 import { LOCALES, LOCALE_NAMES } from "@/types/cms";
 
-type AboutPreviewEditorProps = {
-  initialData?: CmsAboutPreviewContent;
+type AboutEditorProps = {
+  initialData?: CmsAboutContent;
 };
 
 type ImageUploadRef = {
@@ -31,9 +31,9 @@ type ImageUploadRef = {
   hasPendingFile: boolean;
 };
 
-export default function AboutPreviewEditor({
+export default function AboutEditor({
   initialData,
-}: AboutPreviewEditorProps) {
+}: AboutEditorProps) {
   // ─── Image state ──────────────────────────────────────────
   const [savedImage, setSavedImage] = useState(initialData?.image || "");
   const oldImageRef = useRef<string | null>(null);
@@ -43,7 +43,7 @@ export default function AboutPreviewEditor({
   // ─── Locale state ─────────────────────────────────────────
   const [activeLocale, setActiveLocale] = useState<Locale>("en");
   const [localeForms, setLocaleForms] = useState<
-    Record<Locale, CmsAboutPreviewLocale>
+    Record<Locale, CmsAboutLocale>
   >({
     en: initialData?.locales?.en || {
       title: "",
@@ -74,7 +74,7 @@ export default function AboutPreviewEditor({
 
   // ─── Locale form handlers ─────────────────────────────────
   const handleLocaleChange = (
-    field: keyof CmsAboutPreviewLocale,
+    field: keyof CmsAboutLocale,
     value: string | boolean
   ) => {
     setLocaleForms((prev) => ({
@@ -102,7 +102,7 @@ export default function AboutPreviewEditor({
       }
     }
 
-    const result = await saveAboutPreviewImage(
+    const result = await saveAboutImage(
       newKey,
       oldImageRef.current || savedImage || undefined
     );
@@ -122,7 +122,7 @@ export default function AboutPreviewEditor({
   // ─── Save Locale Content ──────────────────────────────────
   const handleSaveLocale = async () => {
     setIsSavingLocale(true);
-    const result = await saveAboutPreviewLocaleContent(
+    const result = await saveAboutLocaleContent(
       activeLocale,
       localeForms[activeLocale]
     );
@@ -146,7 +146,7 @@ export default function AboutPreviewEditor({
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900">
-          About Preview Section
+          About Section
         </h2>
         <p className="text-sm text-gray-500">
           Edit the about section shown on the homepage
@@ -350,7 +350,7 @@ export default function AboutPreviewEditor({
               <div className="relative aspect-square w-full max-w-[280px] md:max-w-[320px] rounded-lg overflow-hidden mx-auto">
                 <img
                   src={getR2KeyUrl(savedImage)}
-                  alt="About preview"
+                  alt="About"
                   className="w-full h-full object-cover"
                 />
               </div>
