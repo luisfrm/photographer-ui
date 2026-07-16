@@ -8,6 +8,8 @@ import { deleteR2Objects } from "@/lib/r2/upload";
 import type {
   CmsHeroContent,
   CmsHeroLocale,
+  CmsCarouselContent,
+  CmsImage,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -125,6 +127,8 @@ export async function signOutAction() {
 export type {
   CmsHeroContent,
   CmsHeroLocale,
+  CmsCarouselContent,
+  CmsImage,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -277,10 +281,6 @@ export async function saveHeroContent(
   return { success: true, error: null };
 }
 
-/**
- * Save only one locale's content for the hero section.
- * Preserves the other locale's data and shared images.
- */
 export async function saveHeroLocaleContent(
   locale: Locale,
   localeData: CmsHeroLocale
@@ -306,13 +306,8 @@ export async function saveHeroLocaleContent(
 
 /**
  * Save hero images (R2 keys).
- * Flow: update DB → then delete old images from R2.
+ * Flow: update DB -> then delete old images from R2.
  * This ensures we never lose images if DB update fails.
- *
- * @param backgroundImage1 - New R2 key for image 1
- * @param backgroundImage2 - New R2 key for image 2
- * @param oldKey1 - Old R2 key to delete after successful save (if replaced)
- * @param oldKey2 - Old R2 key to delete after successful save (if replaced)
  */
 export async function saveHeroImages(
   backgroundImage1: string,
@@ -328,14 +323,12 @@ export async function saveHeroImages(
     backgroundImage2,
   };
 
-  // Step 1: Update DB with new keys
   const { error } = await saveContentAction("home.hero", updated);
 
   if (error) {
     return { success: false, error };
   }
 
-  // Step 2: DB update succeeded — now safe to delete old images from R2
   const keysToDelete = [oldKey1, oldKey2].filter(
     (key) => key && key.length > 0 && key !== backgroundImage1 && key !== backgroundImage2
   ) as string[];
@@ -344,8 +337,52 @@ export async function saveHeroImages(
     try {
       await deleteR2Objects(keysToDelete);
     } catch {
-      // Log but don't fail — old images are orphaned but not harmful
       console.error("Failed to delete old R2 images:", keysToDelete);
+    }
+  }
+
+  return { success: true, error: null };
+}
+
+// --- Carousel-Specific Actions ---
+
+const CAROUSEL_DEFAULTS: CmsCarouselContent = {
+  images: [],
+};
+
+export async function getCarouselContent(): Promise<CmsCarouselContent> {
+  const { data, error } = await getContentAction("home.carousel");
+
+  if (error || !data) {
+    return CAROUSEL_DEFAULTS;
+  }
+
+  return {
+    ...CAROUSEL_DEFAULTS,
+    ...data,
+  };
+}
+
+export async function saveCarouselContent(
+  images: CmsImage[],
+  removedKeys?: string[]
+): Promise<{ success: boolean; error: string | null }> {
+  const updated: CmsCarouselContent = { images };
+
+  const { error } = await saveContentAction("home.carousel", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  if (removedKeys && removedKeys.length > 0) {
+    const keysToDelete = removedKeys.filter((k) => k && k.length > 0);
+    if (keysToDelete.length > 0) {
+      try {
+        await deleteR2Objects(keysToDelete);
+      } catch {
+        console.error("Failed to delete old carousel images:", keysToDelete);
+      }
     }
   }
 

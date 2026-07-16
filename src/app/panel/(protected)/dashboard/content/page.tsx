@@ -14,8 +14,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import HeroEditor from "@/components/panel/editors/HeroEditor";
-import { getHeroContent } from "@/app/panel/actions";
-import type { CmsHeroContent } from "@/types/cms";
+import CarouselEditor from "@/components/panel/editors/CarouselEditor";
+import { getHeroContent, getCarouselContent } from "@/app/panel/actions";
+import type { CmsHeroContent, CmsImage } from "@/types/cms";
 
 type ContentSection = {
   id: string;
@@ -80,11 +81,17 @@ const contentSections: ContentSection[] = [
 function renderEditor(
   sectionId: string,
   subsectionId: string,
-  heroData: CmsHeroContent | null
+  heroData: CmsHeroContent | null,
+  carouselData: CmsImage[] | null
 ) {
   // Home > Hero
   if (sectionId === "home" && subsectionId === "hero") {
     return <HeroEditor initialData={heroData ?? undefined} />;
+  }
+
+  // Home > Carousel
+  if (sectionId === "home" && subsectionId === "carousel") {
+    return <CarouselEditor initialData={carouselData ?? undefined} />;
   }
 
   // Placeholder for other editors
@@ -113,10 +120,12 @@ export default function ContentPage() {
   const [selectedSubsection, setSelectedSubsection] = useState<string | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [heroData, setHeroData] = useState<CmsHeroContent | null>(null);
+  const [carouselData, setCarouselData] = useState<CmsImage[] | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const heroLoadedRef = useRef(false);
+  const carouselLoadedRef = useRef(false);
 
-  // Load hero data when Hero editor is selected
+  // Load content when editor is selected
   useEffect(() => {
     if (
       selectedSectionId === "home" &&
@@ -127,6 +136,19 @@ export default function ContentPage() {
       setIsLoadingContent(true);
       getHeroContent().then((data) => {
         setHeroData(data);
+        setIsLoadingContent(false);
+      });
+    }
+
+    if (
+      selectedSectionId === "home" &&
+      selectedSubsection === "carousel" &&
+      !carouselLoadedRef.current
+    ) {
+      carouselLoadedRef.current = true;
+      setIsLoadingContent(true);
+      getCarouselContent().then((data: { images: import("@/types/cms").CmsImage[] }) => {
+        setCarouselData(data.images);
         setIsLoadingContent(false);
       });
     }
@@ -144,6 +166,9 @@ export default function ContentPage() {
   const handleBack = () => {
     setSelectedSubsection(null);
     setSelectedSectionId(null);
+    // Reset loaded flags so re-entering the editor always fetches fresh data
+    heroLoadedRef.current = false;
+    carouselLoadedRef.current = false;
   };
 
   // Find the selected section and subsection names for display
@@ -184,7 +209,7 @@ export default function ContentPage() {
               <span className="text-sm text-gray-500">Loading content...</span>
             </div>
           ) : (
-            renderEditor(selectedSectionId!, selectedSubsection, heroData)
+            renderEditor(selectedSectionId!, selectedSubsection, heroData, carouselData)
           )}
         </div>
       </div>
