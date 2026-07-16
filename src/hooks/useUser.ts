@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getCurrentUserAction, type UserProfile } from "@/app/panel/actions";
+import { getCurrentUserAction } from "@/app/panel/actions";
+import type { UserProfile } from "@/lib/supabase/user";
 
 export function useUser() {
   const [user, setUser] = useState<UserProfile | null>(null);

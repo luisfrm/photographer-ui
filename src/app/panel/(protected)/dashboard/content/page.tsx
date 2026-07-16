@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { 
-  FileText, 
-  Image, 
-  User, 
-  Briefcase, 
+import { useState, useEffect, useRef } from "react";
+import {
+  FileText,
+  User,
+  Briefcase,
   Mail,
   ChevronRight,
   Settings,
   Palette,
-  ArrowLeft
+  ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import HeroEditor from "@/components/panel/editors/HeroEditor";
+import { getHeroContent, type HeroContent } from "@/app/panel/actions";
 
 type ContentSection = {
   id: string;
@@ -74,10 +76,60 @@ const contentSections: ContentSection[] = [
   },
 ];
 
+function renderEditor(
+  sectionId: string,
+  subsectionId: string,
+  heroData: HeroContent | null
+) {
+  // Home > Hero
+  if (sectionId === "home" && subsectionId === "hero") {
+    return <HeroEditor initialData={heroData ?? undefined} />;
+  }
+
+  // Placeholder for other editors
+  const sectionName = contentSections.find((s) => s.id === sectionId)?.title;
+  const subsectionName = contentSections
+    .find((s) => s.id === sectionId)
+    ?.subsections.find((s) => s.id === subsectionId)?.name;
+
+  return (
+    <div className="text-center py-16">
+      <div className="p-4 bg-primary/10 rounded-full w-fit mx-auto mb-4">
+        <Palette className="h-8 w-8 text-primary" />
+      </div>
+      <h3 className="text-xl font-medium text-gray-900 mb-2">
+        {subsectionName} Editor
+      </h3>
+      <p className="text-gray-500 max-w-md mx-auto">
+        The editor for {sectionName} → {subsectionName} will be implemented next.
+      </p>
+    </div>
+  );
+}
+
 export default function ContentPage() {
   const [expandedSection, setExpandedSection] = useState<string | null>("home");
   const [selectedSubsection, setSelectedSubsection] = useState<string | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [heroData, setHeroData] = useState<HeroContent | null>(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
+  const heroLoadedRef = useRef(false);
+
+  // Load hero data when Hero editor is selected
+  useEffect(() => {
+    if (
+      selectedSectionId === "home" &&
+      selectedSubsection === "hero" &&
+      !heroLoadedRef.current
+    ) {
+      heroLoadedRef.current = true;
+      setIsLoadingContent(true);
+      getHeroContent("en").then((data) => {
+        setHeroData(data);
+        setIsLoadingContent(false);
+      });
+    }
+  }, [selectedSectionId, selectedSubsection]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSection(expandedSection === sectionId ? null : sectionId);
@@ -94,8 +146,10 @@ export default function ContentPage() {
   };
 
   // Find the selected section and subsection names for display
-  const selectedSection = contentSections.find(s => s.id === selectedSectionId);
-  const selectedSubsectionData = selectedSection?.subsections.find(s => s.id === selectedSubsection);
+  const selectedSection = contentSections.find((s) => s.id === selectedSectionId);
+  const selectedSubsectionData = selectedSection?.subsections.find(
+    (s) => s.id === selectedSubsection
+  );
 
   // Editor View - when a subsection is selected
   if (selectedSubsection && selectedSection && selectedSubsectionData) {
@@ -111,27 +165,26 @@ export default function ContentPage() {
             <ArrowLeft className="h-4 w-4" />
             Back to Content
           </button>
-          
+
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <span>{selectedSection.title}</span>
             <ChevronRight className="h-4 w-4" />
-            <span className="text-gray-900 font-medium">{selectedSubsectionData.name}</span>
+            <span className="text-gray-900 font-medium">
+              {selectedSubsectionData.name}
+            </span>
           </div>
         </div>
 
-        {/* Editor placeholder */}
-        <div className="p-8 border border-gray-200 rounded-lg bg-white">
-          <div className="text-center py-16">
-            <div className="p-4 bg-primary/10 rounded-full w-fit mx-auto mb-4">
-              <Image className="h-8 w-8 text-primary" />
+        {/* Editor */}
+        <div className="p-6 border border-gray-200 rounded-lg bg-white">
+          {isLoadingContent ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-6 w-6 text-primary animate-spin mr-3" />
+              <span className="text-sm text-gray-500">Loading content...</span>
             </div>
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
-              {selectedSubsectionData.name} Editor
-            </h3>
-            <p className="text-gray-500 max-w-md mx-auto">
-              The editor for {selectedSection.title} → {selectedSubsectionData.name} will be implemented next.
-            </p>
-          </div>
+          ) : (
+            renderEditor(selectedSectionId!, selectedSubsection, heroData)
+          )}
         </div>
       </div>
     );
@@ -152,9 +205,11 @@ export default function ContentPage() {
         <div className="flex items-start gap-3">
           <Settings className="h-5 w-5 text-primary mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Packages are managed in Services</p>
+            <p className="text-sm font-medium text-gray-900">
+              Packages are managed in Services
+            </p>
             <p className="text-sm text-gray-600">
-              The Services section is the single source of truth for all packages. 
+              The Services section is the single source of truth for all packages.
               Packages shown on the Home page are automatically synced from here.
             </p>
           </div>
@@ -180,10 +235,14 @@ export default function ContentPage() {
               )}
             >
               <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-2 rounded-lg",
-                  expandedSection === section.id ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-600"
-                )}>
+                <div
+                  className={cn(
+                    "p-2 rounded-lg",
+                    expandedSection === section.id
+                      ? "bg-primary/10 text-primary"
+                      : "bg-gray-100 text-gray-600"
+                  )}
+                >
                   {section.icon}
                 </div>
                 <div>
@@ -206,7 +265,9 @@ export default function ContentPage() {
                   <button
                     key={subsection.id}
                     type="button"
-                    onClick={() => handleSubsectionClick(section.id, subsection.id)}
+                    onClick={() =>
+                      handleSubsectionClick(section.id, subsection.id)
+                    }
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-gray-100 transition-all duration-200"
                   >
                     <Palette className="h-4 w-4 text-gray-400" />

@@ -5,10 +5,14 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { transformUser, type UserProfile } from "@/lib/supabase/user";
 
+// ─── Auth Types ─────────────────────────────────────────────
+
 export type AuthFormState = {
   error: string | null;
   success: string | null;
 };
+
+// ─── Auth Actions ───────────────────────────────────────────
 
 export async function getCurrentUserAction(): Promise<UserProfile | null> {
   const cookieStore = await cookies();
@@ -105,4 +109,129 @@ export async function signOutAction() {
   await supabase.auth.signOut();
 
   redirect("/panel/login");
+}
+
+// ─── Content Types ──────────────────────────────────────────
+
+export type HeroContent = {
+  title: string;
+  subtitle: string;
+  cta: string;
+  ctaUrl: string;
+  ctaNewTab: boolean;
+  backgroundImage1: string;
+  backgroundImage2: string;
+};
+
+type ContentResult<T> = {
+  data: T | null;
+  error: string | null;
+};
+
+// ─── Content Actions ────────────────────────────────────────
+
+/**
+ * Load content for a given section and locale from Supabase
+ */
+export async function getContentAction<T = Record<string, unknown>>(
+  section: string,
+  locale: string = "en"
+): Promise<ContentResult<T>> {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const { data, error } = await supabase
+      .from("content")
+      .select("data")
+      .eq("section", section)
+      .eq("locale", locale)
+      .single();
+
+    if (error) {
+      // PGRST116 = no rows found, return null data without error
+      if (error.code === "PGRST116") {
+        return { data: null, error: null };
+      }
+      return { data: null, error: error.message };
+    }
+
+    return { data: (data?.data as T) ?? null, error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to load content";
+    return { data: null, error: message };
+  }
+}
+
+/**
+ * Save content for a given section and locale (upsert)
+ */
+export async function saveContentAction<T = object>(
+  section: string,
+  data: T,
+  locale: string = "en"
+): Promise<ContentResult<T>> {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    // Atomic upsert — avoids race condition of check-then-insert/update
+    const result = await supabase
+      .from("content")
+      .upsert(
+        { section, locale, data, updated_at: new Date().toISOString() },
+        { onConflict: "section,locale" }
+      )
+      .select("data")
+      .single();
+
+    if (result.error) {
+      return { data: null, error: result.error.message };
+    }
+
+    return { data: (result.data?.data as T) ?? null, error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to save content";
+    return { data: null, error: message };
+  }
+}
+
+/**
+ * Load hero content with defaults
+ */
+export async function getHeroContent(locale: string = "en"): Promise<HeroContent> {
+  const defaults: HeroContent = {
+    title: "DnovaGallery",
+    subtitle:
+      "It's not the <strong>camera</strong> who makes the photographer, it's the <strong>photographer</strong> who makes the camera.",
+    cta: "Book a session",
+    ctaUrl: "/contact",
+    ctaNewTab: false,
+    backgroundImage1: "",
+    backgroundImage2: "",
+  };
+
+  const { data, error } = await getContentAction<HeroContent>("home.hero", locale);
+
+  if (error || !data) {
+    return defaults;
+  }
+
+  return { ...defaults, ...data };
+}
+
+/**
+ * Save hero content
+ */
+export async function saveHeroContent(
+  data: HeroContent,
+  locale: string = "en"
+): Promise<{ success: boolean; error: string | null }> {
+  const { error } = await saveContentAction("home.hero", data, locale);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
 }
