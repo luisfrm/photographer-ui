@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.r2.cloudflarestorage.com",
       },
+      {
+        // Cloudflare R2 custom domain used for photographer assets
+        protocol: "https",
+        hostname: "r2-photographer.luisrivas.site",
+      },
     ],
   },
 };

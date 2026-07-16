@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2Client, getR2PublicUrl } from "./client";
 
@@ -59,4 +59,23 @@ export function generateFileKey(
  */
 export function getFileUrl(key: string): string {
   return getR2PublicUrl(key);
+}
+
+/**
+ * Delete objects from R2 by their keys.
+ * Silently ignores missing keys (no error if object doesn't exist).
+ */
+export async function deleteR2Objects(keys: string[]): Promise<void> {
+  const validKeys = keys.filter((k) => k && k.length > 0);
+  if (validKeys.length === 0) return;
+
+  const command = new DeleteObjectsCommand({
+    Bucket: BUCKET_NAME,
+    Delete: {
+      Objects: validKeys.map((key) => ({ Key: key })),
+      Quiet: true,
+    },
+  });
+
+  await r2Client.send(command);
 }
