@@ -100,7 +100,14 @@ export interface CmsAboutPreviewContent extends CmsContentBase {
   };
 }
 
-/** Home Gallery section: photo gallery grid */
+/** Home Gallery section: photo gallery grid
+ * `images` order is fixed and maps to the 4 slots in the public layout:
+ *   [0] = A (top-left,    col-span-2 row-span-1, ~3:2)
+ *   [1] = B (top-middle,  col-span-2 row-span-1, ~3:2)
+ *   [2] = C (right, tall, col-span-2 row-span-2, ~3:4)
+ *   [3] = D (bottom-left, col-span-4 row-span-1, ~16:5)
+ * All 4 must be present for the section to render.
+ */
 export interface CmsGalleryContent extends CmsContentBase {
   title: string;
   images: CmsImage[];

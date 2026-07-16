@@ -16,12 +16,19 @@ import { cn } from "@/lib/utils";
 import HeroEditor from "@/components/panel/editors/HeroEditor";
 import CarouselEditor from "@/components/panel/editors/CarouselEditor";
 import AboutPreviewEditor from "@/components/panel/editors/AboutPreviewEditor";
+import GalleryEditor from "@/components/panel/editors/GalleryEditor";
 import {
   getHeroContent,
   getCarouselContent,
   getAboutPreviewContent,
+  getGalleryContent,
 } from "@/app/panel/actions";
-import type { CmsHeroContent, CmsImage, CmsAboutPreviewContent } from "@/types/cms";
+import type {
+  CmsHeroContent,
+  CmsImage,
+  CmsAboutPreviewContent,
+  CmsGalleryContent,
+} from "@/types/cms";
 
 type ContentSection = {
   id: string;
@@ -88,7 +95,8 @@ function renderEditor(
   subsectionId: string,
   heroData: CmsHeroContent | null,
   carouselData: CmsImage[] | null,
-  aboutPreviewData: CmsAboutPreviewContent | null
+  aboutPreviewData: CmsAboutPreviewContent | null,
+  galleryData: CmsGalleryContent | null
 ) {
   // Home > Hero
   if (sectionId === "home" && subsectionId === "hero") {
@@ -103,6 +111,11 @@ function renderEditor(
   // Home > About Preview
   if (sectionId === "home" && subsectionId === "about-preview") {
     return <AboutPreviewEditor initialData={aboutPreviewData ?? undefined} />;
+  }
+
+  // Home > Gallery
+  if (sectionId === "home" && subsectionId === "gallery") {
+    return <GalleryEditor initialData={galleryData ?? undefined} />;
   }
 
   // Placeholder for other editors
@@ -133,10 +146,12 @@ export default function ContentPage() {
   const [heroData, setHeroData] = useState<CmsHeroContent | null>(null);
   const [carouselData, setCarouselData] = useState<CmsImage[] | null>(null);
   const [aboutPreviewData, setAboutPreviewData] = useState<CmsAboutPreviewContent | null>(null);
+  const [galleryData, setGalleryData] = useState<CmsGalleryContent | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const heroLoadedRef = useRef(false);
   const carouselLoadedRef = useRef(false);
   const aboutPreviewLoadedRef = useRef(false);
+  const galleryLoadedRef = useRef(false);
 
   // Load content when editor is selected
   useEffect(() => {
@@ -178,6 +193,19 @@ export default function ContentPage() {
         setIsLoadingContent(false);
       });
     }
+
+    if (
+      selectedSectionId === "home" &&
+      selectedSubsection === "gallery" &&
+      !galleryLoadedRef.current
+    ) {
+      galleryLoadedRef.current = true;
+      setIsLoadingContent(true);
+      getGalleryContent().then((data) => {
+        setGalleryData(data);
+        setIsLoadingContent(false);
+      });
+    }
   }, [selectedSectionId, selectedSubsection]);
 
   const toggleSection = (sectionId: string) => {
@@ -196,6 +224,7 @@ export default function ContentPage() {
     heroLoadedRef.current = false;
     carouselLoadedRef.current = false;
     aboutPreviewLoadedRef.current = false;
+    galleryLoadedRef.current = false;
   };
 
   // Find the selected section and subsection names for display
@@ -236,7 +265,7 @@ export default function ContentPage() {
               <span className="text-sm text-gray-500">Loading content...</span>
             </div>
           ) : (
-            renderEditor(selectedSectionId!, selectedSubsection, heroData, carouselData, aboutPreviewData)
+            renderEditor(selectedSectionId!, selectedSubsection, heroData, carouselData, aboutPreviewData, galleryData)
           )}
         </div>
       </div>

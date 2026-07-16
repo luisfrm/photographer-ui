@@ -12,6 +12,7 @@ import type {
   CmsImage,
   CmsAboutPreviewContent,
   CmsAboutPreviewLocale,
+  CmsGalleryContent,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -488,6 +489,56 @@ export async function saveAboutPreviewImage(
       await deleteR2Objects([oldKey]);
     } catch {
       console.error("Failed to delete old R2 image:", oldKey);
+    }
+  }
+
+  return { success: true, error: null };
+}
+
+// --- Gallery-Specific Actions ---
+
+const GALLERY_DEFAULTS: CmsGalleryContent = {
+  title: "Some Shots",
+  images: [],
+};
+
+export async function getGalleryContent(): Promise<CmsGalleryContent> {
+  const { data, error } = await getContentAction("home.gallery");
+
+  if (error || !data) {
+    return GALLERY_DEFAULTS;
+  }
+
+  return {
+    ...GALLERY_DEFAULTS,
+    ...data,
+  };
+}
+
+export async function saveGalleryContent(
+  title: string,
+  images: CmsImage[],
+  removedKeys?: string[]
+): Promise<{ success: boolean; error: string | null }> {
+  const updated: CmsGalleryContent = {
+    title,
+    images,
+  };
+
+  const { error } = await saveContentAction("home.gallery", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  if (removedKeys && removedKeys.length > 0) {
+    const keysToDelete = removedKeys.filter((k) => k && k.length > 0);
+    if (keysToDelete.length > 0) {
+      try {
+        await deleteR2Objects(keysToDelete);
+      } catch {
+        console.error("Failed to delete old gallery images:", keysToDelete);
+      }
     }
   }
 
