@@ -114,33 +114,47 @@ export interface CmsGalleryContent extends CmsContentBase {
   columns?: number;
 }
 
-/** Home Contact Preview section: contact CTA on homepage */
-export interface CmsContactPreviewContent extends CmsContentBase {
-  title: string;
-  subtitle: string;
-  cta?: string;
-  ctaUrl?: string;
-}
-
 // ─── Services Sections ──────────────────────────────────────
 
-/** Services Packages section: pricing packages */
+/** Services page-level metadata (hero + SEO) */
+export interface CmsServicesMetaLocale {
+  title: string;
+  description: string;
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
+export interface CmsServicesMetaContent extends CmsContentBase {
+  locales: {
+    [K in Locale]: CmsServicesMetaLocale;
+  };
+}
+
+/** Services Packages section: pricing packages
+ * Max 3 packages, max 10 features per package (validated in the editor).
+ * All text fields are per-locale.
+ */
 export interface CmsServicePackage {
   name: string;
   price: string;
   description: string;
   features: string[];
-  cta: string;
-  highlighted?: boolean;
+  popular?: boolean;
 }
 
-export interface CmsServicesPackagesContent extends CmsContentBase {
+export interface CmsServicesPackagesLocale {
   title: string;
   packages: CmsServicePackage[];
 }
 
-/** Services "What's Included" section */
-export interface CmsServicesIncludedContent extends CmsContentBase {
+export interface CmsServicesPackagesContent extends CmsContentBase {
+  locales: {
+    [K in Locale]: CmsServicesPackagesLocale;
+  };
+}
+
+/** Services "What's Included" section. Max 3 items (validated in the editor). */
+export interface CmsServicesIncludedLocale {
   title: string;
   subtitle?: string;
   items: {
@@ -150,8 +164,14 @@ export interface CmsServicesIncludedContent extends CmsContentBase {
   }[];
 }
 
-/** Services "Our Process" section */
-export interface CmsServicesProcessContent extends CmsContentBase {
+export interface CmsServicesIncludedContent extends CmsContentBase {
+  locales: {
+    [K in Locale]: CmsServicesIncludedLocale;
+  };
+}
+
+/** Services "Our Process" section. Step number is auto-derived from index in the editor. */
+export interface CmsServicesProcessLocale {
   title: string;
   subtitle?: string;
   steps: {
@@ -162,11 +182,23 @@ export interface CmsServicesProcessContent extends CmsContentBase {
   }[];
 }
 
+export interface CmsServicesProcessContent extends CmsContentBase {
+  locales: {
+    [K in Locale]: CmsServicesProcessLocale;
+  };
+}
+
 /** Services FAQ section */
-export interface CmsServicesFaqContent extends CmsContentBase {
+export interface CmsServicesFaqLocale {
   title: string;
   subtitle?: string;
   items: CmsFaqItem[];
+}
+
+export interface CmsServicesFaqContent extends CmsContentBase {
+  locales: {
+    [K in Locale]: CmsServicesFaqLocale;
+  };
 }
 
 // ─── About Sections ─────────────────────────────────────────
@@ -259,8 +291,8 @@ export type CmsSectionData = {
   "home.carousel": CmsCarouselContent;
   "home.about": CmsAboutContent;
   "home.gallery": CmsGalleryContent;
-  "home.contact-preview": CmsContactPreviewContent;
   // Services
+  "services.meta": CmsServicesMetaContent;
   "services.packages": CmsServicesPackagesContent;
   "services.included": CmsServicesIncludedContent;
   "services.process": CmsServicesProcessContent;
@@ -287,7 +319,7 @@ export const CMS_SECTION_KEYS: CmsSectionKey[] = [
   "home.carousel",
   "home.about",
   "home.gallery",
-  "home.contact-preview",
+  "services.meta",
   "services.packages",
   "services.included",
   "services.process",
