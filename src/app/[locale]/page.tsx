@@ -18,7 +18,7 @@ export default async function Home({ params }: PageProps) {
       <InfiniteCarousel />
       <About locale={locale as "en" | "es"} />
       <Gallery />
-      <Pricing />
+      <Pricing locale={locale as "en" | "es"} />
       <Contact />
     </main>
   );
