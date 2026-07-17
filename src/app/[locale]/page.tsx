@@ -18,7 +18,7 @@ export default async function Home({ params }: PageProps) {
       <About locale={locale as "en" | "es"} />
       <Gallery />
       <Pricing locale={locale as "en" | "es"} />
-      <Contact />
+      <Contact locale={locale as "en" | "es"} />
     </main>
   );
 }
