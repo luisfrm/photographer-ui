@@ -90,14 +90,6 @@ export const es: SiteContent = {
     phone: "+1 (555) 123-4567",
   },
 
-  footer: {
-    tagline: "Capturando momentos, creando recuerdos.",
-    contactTitle: "Contacto",
-    socialTitle: "Síguenos",
-    copyright: "© 2025 Darianny Salas. Todos los derechos reservados.",
-    developedBy: "Desarrollado por",
-  },
-
   widgets: {
     whatsappMessage:
       "¡Hola! Me gustaría obtener más información sobre tus servicios fotográficos.",

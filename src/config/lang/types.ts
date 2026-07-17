@@ -46,14 +46,6 @@ export interface ContactContent {
   phone: string;
 }
 
-export interface FooterContent {
-  tagline: string;
-  contactTitle: string;
-  socialTitle: string;
-  copyright: string;
-  developedBy: string;
-}
-
 export interface WidgetsContent {
   whatsappMessage: string;
   whatsappLabel: string;
@@ -77,7 +69,6 @@ export interface SiteContent {
   about: AboutContent;
   pricing: PricingContent;
   contact: ContactContent;
-  footer: FooterContent;
   widgets: WidgetsContent;
   mobileNav: MobileNavContent;
 }
