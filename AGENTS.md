@@ -1,7 +1,7 @@
 # photographer-ui
 
 ## Stack
-Single Next.js 16 (App Router, Turbopack default) app — React 19.2, TypeScript 5.7, Tailwind v4, shadcn/ui (`new-york`/`zinc`/`lucide`), Supabase, Cloudflare R2 via AWS S3 SDK. No monorepo, no `cms/` sub-app (the historical `cms/` was removed; only the root project is active). README still references it — trust the code.
+Single Next.js 16 (App Router, Turbopack default) app — React 19.2, TypeScript 5.7, Tailwind v4, shadcn/ui (`new-york`/`zinc`/`lucide`), Supabase, Cloudflare R2 via AWS S3 SDK. No monorepo. The historical `cms/` sub-app was removed; only the root project is active. README still references it — trust the code.
 
 ## Commands
 - `pnpm dev` — dev server on **port 3005** (Turbopack)
@@ -22,35 +22,72 @@ No test, typecheck, or format script. No CI, no pre-commit hooks. Verify with `p
 
 Without Supabase vars, Supabase calls throw. Without R2 vars, `/api/r2/upload-url` returns 500.
 
-`supabase/config.toml` and `supabase/migrations/` are present (see Database). Apply migrations with the Supabase CLI (`supabase db push`) against a linked project.
+`supabase/config.toml` and `supabase/migrations/` are present. Apply with the Supabase CLI (`supabase db push`) against a linked project.
 
 ## Architecture
+
+### Routing
 - `src/app/page.tsx` → redirects `/` to `/en`.
-- Public pages under `src/app/[locale]/` (locales: `en`, `es`). **Locale list is hardcoded** in `src/app/[locale]/layout.tsx` (`const LOCALES = ["en", "es"]`); the Supabase `languages` table exists but is **not** read here despite `generateStaticParams` looking like it might.
-- Home page: `src/app/[locale]/page.tsx` — sections in order: `Hero`, `InfiniteCarousel`, `About`, `Gallery`, `Pricing`, `Contact`. `export const revalidate = 60` (ISR). `Services` is imported but not rendered.
-- Admin: `src/app/panel/` → `login`, `sign-up`, `(protected)/dashboard` (sub-pages: `appointments`, `content`, `settings`). `/panel` redirects to `/panel/login`. `src/app/panel/actions.ts` has the server actions (`loginAction`, `signUpAction`, `signOutAction`, `getHeroContent`, `saveHeroContent`, `saveCarouselContent`, generic `getContentAction` / `saveContentAction` for the `content` table).
-- API: `src/app/api/r2/upload-url/route.ts` — POST, requires authenticated user, returns presigned R2 PUT URL.
-- Auth guard: `src/proxy.ts` runs on `/panel/:path*`. **Next 16 renamed `middleware.ts` to `proxy.ts` — do not add `middleware.ts`.** Helper: `src/lib/supabase/proxy.ts` (`updateSession`).
-- Supabase: `src/lib/supabase/{client,server,proxy,user}.ts`.
-- R2: `src/lib/r2/{client,upload,url}.ts` (S3Client + presigned upload/delete + URL helpers), re-exported via `src/lib/r2/index.ts`.
-- **Static site copy** lives in `src/config/lang/{en,es,types}.ts` (`getContent(locale)` returns the bundle). Not pulled from Supabase. Edit the TS file to change nav/hero/about/services text.
-- `src/services/` exists but is empty.
-- Components:
-  - `src/components/ui/` — shadcn primitives
-  - `src/components/common/` — `Header`, `Footer`, `Widgets`
-  - `src/components/home/` — page sections; **`infinite-carousel.tsx` is lowercase + dashes, preserve**
-  - `src/components/panel/` — `PanelSidebar`, `PanelBottomBar`, `ImageUpload`, `editors/`
-- Hooks: `src/hooks/{useImageUpload,useUser}.ts`.
-- Path alias: `@/*` → `./src/*`. shadcn aliases in `components.json`.
-- Analytics: OneDollarStats script in `src/app/layout.tsx` (`next/script`, `afterInteractive`) — leave unless told otherwise.
+- Public pages under `src/app/[locale]/` (locales: `en`, `es`).
+- **Locale list is hardcoded** in `src/app/[locale]/layout.tsx` (`const LOCALES = ["en", "es"]`); the Supabase `languages` table exists but is **not** read here despite `generateStaticParams` looking like it might.
 - `src/app/error.tsx` and `src/app/not-found.tsx` are user-facing and written in **Spanish** ("Algo salió mal", "Página no encontrada").
+
+### Public pages (`src/app/[locale]/`)
+- `page.tsx` (home, `revalidate = 60` ISR) — renders `Hero`, `InfiniteCarousel`, `About`, `Gallery`, `Pricing`, `Contact` in that order. `Services.tsx` is imported but not rendered.
+- `about/`, `contact/` — still hardcoded (not yet CMS-driven).
+- `services/` — fully CMS-driven, has `generateMetadata` from `services.meta`.
+- `privacy-policy/`, `terms-and-conditions/` — static legal pages.
+
+### CMS (Supabase-backed)
+Home + Services are CMS-driven. The single source of truth is `public.content` (one row per `section` key). The registry lives in `src/types/cms.ts`:
+- `CmsSectionData` maps each section key (e.g. `"home.hero"`, `"services.packages"`) to its JSONB shape.
+- `CMS_SECTION_KEYS: CmsSectionKey[]` — runtime list of all 16 valid keys.
+- `isCmsSectionKey(key: string)` — type guard.
+- All editable text is wrapped in `locales: { en: XxxLocale, es: XxxLocale }`. Shared assets (images) live at the top level of `data`.
+- Sections: 4 home (`home.hero/carousel/about/gallery`) + 5 services (`services.meta/packages/included/process/faq`) + 4 about + 3 contact. Only the 9 home + services have panel editors; about/contact still show a "coming soon" placeholder in the dashboard.
+- **Services is the single source of truth for pricing** — the home `Pricing.tsx` reads from `services.packages` per locale.
+- `src/lib/cms-icons.ts` — curated lucide icon allowlist (`SERVICES_ICONS` + `getServicesIcon(name)`). Icons are stored in the DB as the key name string; renaming a key breaks saved content.
+
+### Admin (`src/app/panel/`)
+- `login`, `sign-up`, `(protected)/dashboard` (sub-pages: `appointments`, `content`, `settings`). `/panel` redirects to `/panel/login`.
+- `src/app/panel/actions.ts` has all server actions: `loginAction`, `signUpAction`, `signOutAction`, `getCurrentUserAction`, plus 9 `get*Content` + 9 `save*LocaleContent` pairs (one per implemented section) and a generic `getContentAction<T>`.
+- All CMS reads go through `getContentAction` which returns `{ data, error }`.
+- The `content` dashboard (`src/app/panel/(protected)/dashboard/content/page.tsx`) uses a **map-based loader dispatch**: add a new section by adding one entry to the `loaders` map (`Record<string, () => Promise<unknown>>`) and one `if` branch in `renderEditor`. `SKELETON_VARIANTS` maps each section to one of 3 skeleton shapes (`locale`, `locale-image`, `grid`) — reuse the existing `EditorSkeleton` instead of writing new skeletons.
+
+### API
+- `src/app/api/r2/upload-url/route.ts` — POST, requires authenticated user, returns presigned R2 PUT URL.
+
+### Auth
+- `src/proxy.ts` runs on `/panel/:path*`. **Next 16 renamed `middleware.ts` to `proxy.ts` — do not add `middleware.ts`.**
+- Helper: `src/lib/supabase/proxy.ts` (`updateSession`).
+- Supabase clients: `src/lib/supabase/{client,server,proxy,user}.ts`.
+- R2 helpers: `src/lib/r2/{client,upload,url}.ts`, re-exported via `src/lib/r2/index.ts`. CMS stores **R2 object keys** (e.g. `"hero/1784183664742-hr90kp-photo_1.webp"`); use `getR2PublicUrl(key)` to build the public URL.
+
+### Static copy (`src/config/lang/`)
+- Only `Header`, `Footer`, `MobileNavigation`, `Widgets` still read from `getContent(locale)`. Used for nav labels, footer text, theme widgets. Do **not** add new static copy here — the home/services sections are CMS-driven.
+- The `hero`/`about`/`services` keys in this bundle are dead code from before the CMS migration.
+
+### Components
+- `src/components/ui/` — shadcn primitives (incl. `Skeleton`).
+- `src/components/common/` — `Header`, `Footer`, `Widgets`, `MobileNavigation`, `PageSection`, `Titles`.
+- `src/components/home/` — page sections; **`infinite-carousel.tsx` is lowercase + dashes, preserve.**
+- `src/components/panel/` — `PanelSidebar`, `PanelBottomBar`, `ImageUpload`, `editors/{Hero,Carousel,About,Gallery,ServicesMeta,ServicesPackages,ServicesIncluded,ServicesProcess,ServicesFaq}Editor.tsx`.
+
+### Hooks
+- `src/hooks/{useImageUpload,useUser}.ts`. `useImageUpload` returns a `previewUrl` (local object URL) AND an `uploadedKey` (R2 key) — they are separate states; you must call `selectFile()` then `uploadToR2(category)` to get a key.
+
+### Path aliases
+- `@/*` → `./src/*`. shadcn aliases in `components.json`.
+
+### Analytics
+- OneDollarStats script in `src/app/layout.tsx` (`next/script`, `afterInteractive`) — leave unless told otherwise.
 
 ## Database
 `supabase/migrations/`:
 - `20250101000000_create_languages_table.sql` — `public.languages` (code, name, is_active). RLS: public read of active rows. Seeded with `en`, `es`. Currently unused by app code.
-- `20250715000000_create_content_table.sql` — `public.content` (section unique, data jsonb, timestamps). RLS: public `select`, authenticated `insert/update/delete`. CMS sections are one row per `section` key (e.g. `home.hero`, `home.carousel`); `data` JSONB holds shared fields + nested `locales`.
+- `20250715000000_create_content_table.sql` — `public.content` (section unique, data jsonb, timestamps). RLS: public `select`, authenticated `insert/update/delete`. Section keys are e.g. `home.hero`, `services.packages`; `data` JSONB holds shared fields + nested `locales`.
 
-`supabase/seed.sql` is a stub — add local seed data there. `supabase config.toml` pins the local stack ports (API 54321, DB 54322, Studio 54323, etc.).
+`supabase/seed.sql` is a stub — add local seed data there. `supabase config.toml` pins local stack ports (API 54321, DB 54322, Studio 54323).
 
 ## Next.js 16 gotchas
 - `params`, `searchParams`, `cookies()`, `headers()` are **fully async** — always `await`. Use `PageProps` from `src/types/pages.d.ts`.
@@ -72,3 +109,5 @@ Without Supabase vars, Supabase calls throw. Without R2 vars, `/api/r2/upload-ur
 - CI workflows (none in repo).
 - A `middleware.ts` (Next 16 uses `proxy.ts`).
 - A `cms/` sub-app (was removed).
+- New static copy in `src/config/lang/` — it's only for nav/footer.
+- New ad-hoc skeleton components — extend `SKELETON_VARIANTS` and reuse `EditorSkeleton` instead.
