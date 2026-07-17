@@ -7,11 +7,6 @@ export default function PrivacyPolicyPage() {
       {/* Content */}
       <section className="pt-28 pb-16">
         <div className="container mx-auto px-6">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
-
           <div className="max-w-4xl mx-auto">
             <h1 className="text-6xl font-serif mb-8 text-black">Privacy Policy</h1>
             <p className="text-gray-600 text-lg mb-8">Last updated: January 2024</p>
@@ -20,15 +15,15 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Introduction</h2>
                 <p>
-                  At Dari Photography (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;), we are committed to protecting your privacy and 
-                  ensuring the security of your personal information. This Privacy Policy explains how we collect, 
+                  At Dari Photography (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;), we are committed to protecting your privacy and
+                  ensuring the security of your personal information. This Privacy Policy explains how we collect,
                   use, disclose, and safeguard your information when you visit our website or use our photography services.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Information We Collect</h2>
-                
+
                 <h3 className="text-xl font-semibold text-black mb-3">Personal Information</h3>
                 <p className="mb-4">We may collect the following personal information:</p>
                 <ul className="list-disc pl-6 space-y-2">
@@ -98,8 +93,8 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Data Security</h2>
                 <p>
-                  We implement appropriate technical and organizational measures to protect your personal information 
-                  against unauthorized access, alteration, disclosure, or destruction. This includes secure storage 
+                  We implement appropriate technical and organizational measures to protect your personal information
+                  against unauthorized access, alteration, disclosure, or destruction. This includes secure storage
                   systems, encrypted data transmission, and regular security assessments.
                 </p>
               </section>
@@ -120,8 +115,8 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Cookies and Tracking</h2>
                 <p>
-                  Our website uses cookies and similar technologies to enhance your browsing experience, 
-                  analyze website traffic, and understand user preferences. You can control cookie settings 
+                  Our website uses cookies and similar technologies to enhance your browsing experience,
+                  analyze website traffic, and understand user preferences. You can control cookie settings
                   through your browser preferences.
                 </p>
               </section>
@@ -129,7 +124,7 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Third-Party Services</h2>
                 <p>
-                  We may use third-party services for payment processing, website analytics, and communication tools. 
+                  We may use third-party services for payment processing, website analytics, and communication tools.
                   These services have their own privacy policies, and we encourage you to review them.
                 </p>
               </section>
@@ -137,8 +132,8 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Data Retention</h2>
                 <p>
-                  We retain your personal information for as long as necessary to provide our services, 
-                  comply with legal obligations, and resolve disputes. Client images are typically retained 
+                  We retain your personal information for as long as necessary to provide our services,
+                  comply with legal obligations, and resolve disputes. Client images are typically retained
                   for a minimum of 2 years for backup and reorder purposes.
                 </p>
               </section>
@@ -146,7 +141,7 @@ export default function PrivacyPolicyPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Changes to This Policy</h2>
                 <p>
-                  We may update this Privacy Policy periodically to reflect changes in our practices or legal requirements. 
+                  We may update this Privacy Policy periodically to reflect changes in our practices or legal requirements.
                   We will notify you of significant changes through our website or direct communication.
                 </p>
               </section>

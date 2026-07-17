@@ -65,14 +65,6 @@ export default async function ServicesPage({ params }: PageProps) {
       {metaLocale && (
         <section className="pt-28 pb-16">
           <div className="container mx-auto px-6">
-            <Link
-              href={`/${locale}`}
-              className="inline-flex items-center text-gray-600 hover:text-black transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {locale === "es" ? "Volver al inicio" : "Back to Home"}
-            </Link>
-
             <div className="text-center mb-16">
               <h1 className="text-6xl md:text-7xl font-serif mb-6 text-black">
                 {metaLocale.title}

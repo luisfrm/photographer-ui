@@ -29,11 +29,6 @@ export default function ContactPage() {
       {/* Contact Content */}
       <section className="pt-24 pb-16">
         <div>
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
-
           <div className="grid md:grid-cols-2 gap-16">
             <div>
               <h1 className="text-6xl font-serif mb-8 text-black">Get In Touch</h1>

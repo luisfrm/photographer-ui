@@ -7,11 +7,6 @@ export default function TermsAndConditionsPage() {
       {/* Content */}
       <section className="pt-24 pb-16">
         <div className="container mx-auto px-6">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
-
           <div className="max-w-4xl mx-auto">
             <h1 className="text-6xl font-serif mb-8 text-black">Terms & Conditions</h1>
             <p className="text-gray-600 text-lg mb-8">Last updated: January 2024</p>
@@ -20,14 +15,14 @@ export default function TermsAndConditionsPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Agreement to Terms</h2>
                 <p>
-                  By booking photography services with Dari Photography (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;), you (&ldquo;client&rdquo; or &ldquo;you&rdquo;) 
+                  By booking photography services with Dari Photography (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;), you (&ldquo;client&rdquo; or &ldquo;you&rdquo;)
                   agree to be bound by these Terms and Conditions. Please read these terms carefully before booking our services.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Booking and Payment</h2>
-                
+
                 <h3 className="text-xl font-semibold text-black mb-3">Booking Process</h3>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
                   <li>All bookings must be confirmed in writing via email or signed contract</li>
@@ -47,7 +42,7 @@ export default function TermsAndConditionsPage() {
 
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Cancellation and Rescheduling</h2>
-                
+
                 <h3 className="text-xl font-semibold text-black mb-3">Client Cancellation</h3>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
                   <li>Cancellations more than 14 days before the session: Full refund minus 10% processing fee</li>
@@ -66,7 +61,7 @@ export default function TermsAndConditionsPage() {
 
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Photography Session</h2>
-                
+
                 <h3 className="text-xl font-semibold text-black mb-3">Session Guidelines</h3>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
                   <li>Sessions begin promptly at the scheduled time</li>
@@ -86,7 +81,7 @@ export default function TermsAndConditionsPage() {
 
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Image Delivery and Usage</h2>
-                
+
                 <h3 className="text-xl font-semibold text-black mb-3">Delivery Timeline</h3>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
                   <li>Premium Package: 5-7 business days</li>
@@ -149,7 +144,7 @@ export default function TermsAndConditionsPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Privacy and Confidentiality</h2>
                 <p>
-                  We respect your privacy and maintain confidentiality of all personal information. 
+                  We respect your privacy and maintain confidentiality of all personal information.
                   Please refer to our Privacy Policy for detailed information about data handling and protection.
                 </p>
               </section>
@@ -167,8 +162,8 @@ export default function TermsAndConditionsPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Modifications to Terms</h2>
                 <p>
-                  These terms may be updated periodically to reflect changes in our services or legal requirements. 
-                  Clients will be notified of significant changes, and continued use of our services constitutes 
+                  These terms may be updated periodically to reflect changes in our services or legal requirements.
+                  Clients will be notified of significant changes, and continued use of our services constitutes
                   acceptance of updated terms.
                 </p>
               </section>
@@ -189,7 +184,7 @@ export default function TermsAndConditionsPage() {
               <section>
                 <h2 className="text-3xl font-serif text-black mb-4">Acceptance</h2>
                 <p>
-                  By booking our services, you acknowledge that you have read, understood, and agree to be bound by 
+                  By booking our services, you acknowledge that you have read, understood, and agree to be bound by
                   these Terms and Conditions. These terms constitute the entire agreement between you and Dari Photography.
                 </p>
               </section>

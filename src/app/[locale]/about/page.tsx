@@ -12,11 +12,6 @@ export default function AboutPage() {
 				{/* Hero Section */}
 				<section className="bg-white">
 					<div>
-						<Link href="/en" className="inline-flex items-center text-gray-600 hover:text-black transition-colors mb-8">
-							<ArrowLeft className="w-4 h-4 mr-2" />
-							Back to Home
-						</Link>
-
 						<div className="grid md:grid-cols-2 gap-16 items-center">
 							{/* Text Content */}
 							<div>
@@ -186,7 +181,7 @@ export default function AboutPage() {
 			</PageSection>
 			<footer>
 				{/* CTA Section */}
-        			{/* Testimonial Section */}
+				{/* Testimonial Section */}
 				<section className="py-20 bg-gray-50">
 					<div className="">
 						<div className="max-w-4xl mx-auto">
