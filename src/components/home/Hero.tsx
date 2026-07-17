@@ -26,6 +26,7 @@ export default async function Hero({ locale }: HeroProps) {
               src={img1}
               alt="Hero background 1"
               fill
+              sizes="50vw"
               className="object-cover object-center"
               priority
             />
@@ -35,6 +36,7 @@ export default async function Hero({ locale }: HeroProps) {
               src={img2}
               alt="Hero background 2"
               fill
+              sizes="50vw"
               className="object-cover object-center"
               priority
             />

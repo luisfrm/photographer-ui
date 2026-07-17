@@ -49,6 +49,7 @@ export default async function About({ locale }: AboutProps) {
             src={getR2KeyUrl(about.image)}
             alt={localeData.title}
             fill
+            sizes="(min-width: 768px) 50vw, 100vw"
             className="object-cover rounded-lg"
           />
         </div>

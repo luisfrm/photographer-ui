@@ -28,6 +28,7 @@ export default async function Gallery() {
             src={getR2KeyUrl(a.src)}
             alt={a.alt}
             fill
+            sizes="(min-width: 768px) 33vw, 100vw"
             className="object-cover hover:scale-105 transition-all duration-300"
           />
         </div>
@@ -38,6 +39,7 @@ export default async function Gallery() {
             src={getR2KeyUrl(b.src)}
             alt={b.alt}
             fill
+            sizes="(min-width: 768px) 33vw, 100vw"
             className="object-cover hover:scale-105 transition-all duration-300"
           />
         </div>
@@ -48,6 +50,7 @@ export default async function Gallery() {
             src={getR2KeyUrl(c.src)}
             alt={c.alt}
             fill
+            sizes="(min-width: 768px) 33vw, 100vw"
             className="object-cover hover:scale-105 transition-all duration-300"
           />
         </div>
@@ -58,6 +61,7 @@ export default async function Gallery() {
             src={getR2KeyUrl(d.src)}
             alt={d.alt}
             fill
+            sizes="(min-width: 768px) 66vw, 100vw"
             className="object-cover object-center hover:scale-105 transition-all duration-300"
           />
         </div>

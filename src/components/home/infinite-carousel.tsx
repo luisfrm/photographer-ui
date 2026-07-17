@@ -42,6 +42,7 @@ export default async function InfiniteCarousel() {
                   src={image.src}
                   alt={image.alt}
                   fill
+                  sizes="320px"
                   className="object-cover"
                 />
               </div>
