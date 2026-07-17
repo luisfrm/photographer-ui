@@ -10,25 +10,32 @@ import {
   Settings,
   Palette,
   ArrowLeft,
-  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import HeroEditor from "@/components/panel/editors/HeroEditor";
 import CarouselEditor from "@/components/panel/editors/CarouselEditor";
 import AboutEditor from "@/components/panel/editors/AboutEditor";
 import GalleryEditor from "@/components/panel/editors/GalleryEditor";
+import ServicesMetaEditor from "@/components/panel/editors/ServicesMetaEditor";
+import ServicesPackagesEditor from "@/components/panel/editors/ServicesPackagesEditor";
+import ServicesIncludedEditor from "@/components/panel/editors/ServicesIncludedEditor";
+import ServicesProcessEditor from "@/components/panel/editors/ServicesProcessEditor";
+import ServicesFaqEditor from "@/components/panel/editors/ServicesFaqEditor";
 import {
   getHeroContent,
   getCarouselContent,
   getAboutContent,
   getGalleryContent,
+  getServicesMeta,
+  getServicesPackages,
+  getServicesIncluded,
+  getServicesProcess,
+  getServicesFaq,
 } from "@/app/panel/actions";
-import type {
-  CmsHeroContent,
-  CmsImage,
-  CmsAboutContent,
-  CmsGalleryContent,
-} from "@/types/cms";
+import type { CmsImage, CmsSectionKey } from "@/types/cms";
+
+// ─── Section registry ──────────────────────────────────────
 
 type ContentSection = {
   id: string;
@@ -49,8 +56,6 @@ const contentSections: ContentSection[] = [
       { id: "carousel", name: "Infinite Carousel" },
       { id: "about", name: "About" },
       { id: "gallery", name: "Gallery" },
-      { id: "pricing", name: "Pricing (from Services)" },
-      { id: "contact-preview", name: "Contact Preview" },
     ],
   },
   {
@@ -59,6 +64,7 @@ const contentSections: ContentSection[] = [
     icon: <Briefcase className="h-5 w-5" />,
     description: "Manage packages and services (single source of truth)",
     subsections: [
+      { id: "meta", name: "Page Meta" },
       { id: "packages", name: "Packages" },
       { id: "included", name: "What's Included" },
       { id: "process", name: "Our Process" },
@@ -90,35 +96,73 @@ const contentSections: ContentSection[] = [
   },
 ];
 
-function renderEditor(
-  sectionId: string,
-  subsectionId: string,
-  heroData: CmsHeroContent | null,
-  carouselData: CmsImage[] | null,
-  aboutData: CmsAboutContent | null,
-  galleryData: CmsGalleryContent | null
-) {
-  // Home > Hero
-  if (sectionId === "home" && subsectionId === "hero") {
-    return <HeroEditor initialData={heroData ?? undefined} />;
-  }
+/**
+ * Map of fully-qualified section keys (e.g. "home.hero", "services.packages")
+ * to their data loader. Adding a new section = add one entry here + one
+ * case in `renderEditor` below.
+ */
+const loaders: Record<string, () => Promise<unknown>> = {
+  "home.hero": getHeroContent,
+  "home.carousel": getCarouselContent,
+  "home.about": getAboutContent,
+  "home.gallery": getGalleryContent,
+  "services.meta": getServicesMeta,
+  "services.packages": getServicesPackages,
+  "services.included": getServicesIncluded,
+  "services.process": getServicesProcess,
+  "services.faq": getServicesFaq,
+};
 
-  // Home > Carousel
-  if (sectionId === "home" && subsectionId === "carousel") {
-    return <CarouselEditor initialData={carouselData ?? undefined} />;
-  }
+type DataMap = Record<string, unknown>;
+const EMPTY_DATA: DataMap = {};
 
-  // Home > About
-  if (sectionId === "home" && subsectionId === "about") {
-    return <AboutEditor initialData={aboutData ?? undefined} />;
-  }
+/**
+ * Maps each section key to a skeleton variant for its initial load.
+ * Editors are grouped into 3 visual categories so we don't need 9
+ * separate skeleton definitions.
+ */
+type SkeletonVariant = "locale" | "locale-image" | "grid";
+const SKELETON_VARIANTS: Record<string, SkeletonVariant> = {
+  "home.hero": "locale-image",
+  "home.about": "locale-image",
+  "home.carousel": "grid",
+  "home.gallery": "grid",
+  "services.meta": "locale",
+  "services.packages": "locale",
+  "services.included": "locale",
+  "services.process": "locale",
+  "services.faq": "locale",
+};
 
-  // Home > Gallery
-  if (sectionId === "home" && subsectionId === "gallery") {
-    return <GalleryEditor initialData={galleryData ?? undefined} />;
-  }
+// ─── Editor dispatch ───────────────────────────────────────
 
-  // Placeholder for other editors
+function renderEditor(key: string, data: unknown) {
+  // Home
+  if (key === "home.hero") return <HeroEditor initialData={data as never} />;
+  if (key === "home.carousel")
+    return (
+      <CarouselEditor
+        initialData={(data as { images?: CmsImage[] } | undefined)?.images}
+      />
+    );
+  if (key === "home.about") return <AboutEditor initialData={data as never} />;
+  if (key === "home.gallery")
+    return <GalleryEditor initialData={data as never} />;
+
+  // Services
+  if (key === "services.meta")
+    return <ServicesMetaEditor initialData={data as never} />;
+  if (key === "services.packages")
+    return <ServicesPackagesEditor initialData={data as never} />;
+  if (key === "services.included")
+    return <ServicesIncludedEditor initialData={data as never} />;
+  if (key === "services.process")
+    return <ServicesProcessEditor initialData={data as never} />;
+  if (key === "services.faq")
+    return <ServicesFaqEditor initialData={data as never} />;
+
+  // Placeholder for unimplemented editors
+  const [sectionId, subsectionId] = key.split(".");
   const sectionName = contentSections.find((s) => s.id === sectionId)?.title;
   const subsectionName = contentSections
     .find((s) => s.id === sectionId)
@@ -139,74 +183,41 @@ function renderEditor(
   );
 }
 
+// ─── Page ──────────────────────────────────────────────────
+
 export default function ContentPage() {
   const [expandedSection, setExpandedSection] = useState<string | null>("home");
   const [selectedSubsection, setSelectedSubsection] = useState<string | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const [heroData, setHeroData] = useState<CmsHeroContent | null>(null);
-  const [carouselData, setCarouselData] = useState<CmsImage[] | null>(null);
-  const [aboutData, setAboutData] = useState<CmsAboutContent | null>(null);
-  const [galleryData, setGalleryData] = useState<CmsGalleryContent | null>(null);
+
+  // Single data map keyed by full section key (e.g. "home.hero")
+  const [data, setData] = useState<DataMap>(EMPTY_DATA);
+  // Tracks which keys have already been loaded
+  const [loaded, setLoaded] = useState<Record<string, boolean>>({});
   const [isLoadingContent, setIsLoadingContent] = useState(false);
-  const heroLoadedRef = useRef(false);
-  const carouselLoadedRef = useRef(false);
-  const aboutLoadedRef = useRef(false);
-  const galleryLoadedRef = useRef(false);
 
-  // Load content when editor is selected
+  // Build the active key
+  const activeKey =
+    selectedSectionId && selectedSubsection
+      ? `${selectedSectionId}.${selectedSubsection}`
+      : null;
+
+  // Load data on selection
   useEffect(() => {
-    if (
-      selectedSectionId === "home" &&
-      selectedSubsection === "hero" &&
-      !heroLoadedRef.current
-    ) {
-      heroLoadedRef.current = true;
-      setIsLoadingContent(true);
-      getHeroContent().then((data) => {
-        setHeroData(data);
-        setIsLoadingContent(false);
-      });
-    }
+    if (!activeKey) return;
+    if (loaded[activeKey]) return;
 
-    if (
-      selectedSectionId === "home" &&
-      selectedSubsection === "carousel" &&
-      !carouselLoadedRef.current
-    ) {
-      carouselLoadedRef.current = true;
-      setIsLoadingContent(true);
-      getCarouselContent().then((data: { images: import("@/types/cms").CmsImage[] }) => {
-        setCarouselData(data.images);
-        setIsLoadingContent(false);
-      });
-    }
+    const loader = loaders[activeKey];
+    if (!loader) return;
 
-    if (
-      selectedSectionId === "home" &&
-      selectedSubsection === "about" &&
-      !aboutLoadedRef.current
-    ) {
-      aboutLoadedRef.current = true;
-      setIsLoadingContent(true);
-      getAboutContent().then((data) => {
-        setAboutData(data);
-        setIsLoadingContent(false);
-      });
-    }
-
-    if (
-      selectedSectionId === "home" &&
-      selectedSubsection === "gallery" &&
-      !galleryLoadedRef.current
-    ) {
-      galleryLoadedRef.current = true;
-      setIsLoadingContent(true);
-      getGalleryContent().then((data) => {
-        setGalleryData(data);
-        setIsLoadingContent(false);
-      });
-    }
-  }, [selectedSectionId, selectedSubsection]);
+    setLoaded((p) => ({ ...p, [activeKey]: true }));
+    setIsLoadingContent(true);
+    loader()
+      .then((result) => {
+        setData((p) => ({ ...p, [activeKey]: result }));
+      })
+      .finally(() => setIsLoadingContent(false));
+  }, [activeKey, loaded]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSection(expandedSection === sectionId ? null : sectionId);
@@ -220,11 +231,8 @@ export default function ContentPage() {
   const handleBack = () => {
     setSelectedSubsection(null);
     setSelectedSectionId(null);
-    // Reset loaded flags so re-entering the editor always fetches fresh data
-    heroLoadedRef.current = false;
-    carouselLoadedRef.current = false;
-    aboutLoadedRef.current = false;
-    galleryLoadedRef.current = false;
+    // Reset all loaded flags so re-entering any editor fetches fresh data
+    setLoaded({});
   };
 
   // Find the selected section and subsection names for display
@@ -233,133 +241,306 @@ export default function ContentPage() {
     (s) => s.id === selectedSubsection
   );
 
-  // Editor View - when a subsection is selected
-  if (selectedSubsection && selectedSection && selectedSubsectionData) {
-    return (
-      <div className="max-w-4xl">
-        {/* Back button and breadcrumb */}
-        <div className="mb-6">
-          <button
-            type="button"
-            onClick={handleBack}
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-4"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Content
-          </button>
+  // Use viewKey to trigger the entrance animation when switching between
+  // List View and Editor View. React unmounts and remounts the wrapper
+  // when the key changes, replaying the `animate-in` keyframes.
+  const viewKey = activeKey ?? "list";
+  const showEditor =
+    activeKey && selectedSection && selectedSubsectionData;
 
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span>{selectedSection.title}</span>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-gray-900 font-medium">
-              {selectedSubsectionData.name}
-            </span>
+  return (
+    <div
+      key={viewKey}
+      className="max-w-4xl animate-in fade-in slide-in-from-bottom-2 duration-300"
+    >
+      {showEditor ? (
+        <>
+          {/* Back button and breadcrumb */}
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-4"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Content
+            </button>
+
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span>{selectedSection.title}</span>
+              <ChevronRight className="h-4 w-4" />
+              <span className="text-gray-900 font-medium">
+                {selectedSubsectionData.name}
+              </span>
+            </div>
+          </div>
+
+          {/* Editor */}
+          <div className="p-6 border border-gray-200 rounded-lg bg-white">
+            {isLoadingContent ||
+            (!data[activeKey] && loaders[activeKey]) ? (
+              <EditorSkeleton
+                variant={SKELETON_VARIANTS[activeKey] ?? "locale"}
+              />
+            ) : (
+              renderEditor(activeKey, data[activeKey])
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* List View */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-serif font-bold text-gray-900">
+              Content
+            </h1>
+            <p className="text-gray-500 mt-2">
+              Manage your website content. Click on a section to expand and
+              edit.
+            </p>
+          </div>
+
+          {/* Info banner about Services */}
+          <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+            <div className="flex items-start gap-3">
+              <Settings className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  Packages are managed in Services
+                </p>
+                <p className="text-sm text-gray-600">
+                  The Services section is the single source of truth for all
+                  packages. Packages shown on the Home page are automatically
+                  synced from here.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Sections */}
+          <div className="space-y-2">
+            {contentSections.map((section) => (
+              <SectionCard
+                key={section.id}
+                section={section}
+                isExpanded={expandedSection === section.id}
+                onToggle={() => toggleSection(section.id)}
+                onSubsectionClick={handleSubsectionClick}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Section Card (with animated expand/collapse) ─────────
+
+function SectionCard({
+  section,
+  isExpanded,
+  onToggle,
+  onSubsectionClick,
+}: {
+  section: (typeof contentSections)[number];
+  isExpanded: boolean;
+  onToggle: () => void;
+  onSubsectionClick: (sectionId: string, subsectionId: string) => void;
+}) {
+  return (
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+      {/* Section Header */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className={cn(
+          "w-full flex items-center justify-between p-4 text-left transition-colors duration-300",
+          isExpanded
+            ? "bg-primary/5 border-b border-gray-200"
+            : "hover:bg-gray-50"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "p-2 rounded-lg",
+              isExpanded
+                ? "bg-primary/10 text-primary"
+                : "bg-gray-100 text-gray-600"
+            )}
+          >
+            {section.icon}
+          </div>
+          <div>
+            <h3 className="font-medium text-gray-900">{section.title}</h3>
+            <p className="text-sm text-gray-500">{section.description}</p>
           </div>
         </div>
+        <ChevronRight
+          data-state={isExpanded ? "open" : "closed"}
+          className="h-5 w-5 text-gray-400 transition-transform duration-300 data-[state=open]:rotate-90"
+        />
+      </button>
 
-        {/* Editor */}
-        <div className="p-6 border border-gray-200 rounded-lg bg-white">
-          {isLoadingContent ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-6 w-6 text-primary animate-spin mr-3" />
-              <span className="text-sm text-gray-500">Loading content...</span>
+      {/* Subsections — grid-rows trick para slide animado bidireccional */}
+      <div
+        className={cn(
+          "grid transition-all duration-300 ease-in-out",
+          isExpanded
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        )}
+      >
+        <div className="overflow-hidden min-h-0">
+          <div className="p-2">
+            {section.subsections.map((subsection) => (
+              <button
+                key={subsection.id}
+                type="button"
+                onClick={() => onSubsectionClick(section.id, subsection.id)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+              >
+                <Palette className="h-4 w-4 text-gray-400" />
+                <span className="font-medium">{subsection.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Editor Skeleton ──────────────────────────────────────
+
+/**
+ * Skeleton placeholder shown while an editor's initial data is loading
+ * from Supabase. Three variants match the visual shape of the editor
+ * categories: locale (text + tabs), locale-image (adds image upload),
+ * grid (image grid like Gallery/Carousel).
+ */
+function EditorSkeleton({
+  variant,
+}: {
+  variant: "locale" | "locale-image" | "grid";
+}) {
+  if (variant === "locale-image") {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        {/* Image upload area */}
+        <div className="p-6 border border-gray-200 rounded-lg bg-white space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-56" />
             </div>
-          ) : (
-            renderEditor(selectedSectionId!, selectedSubsection, heroData, carouselData, aboutData, galleryData)
-          )}
+            <Skeleton className="h-9 w-32" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Skeleton className="aspect-video w-full rounded-lg" />
+            <Skeleton className="aspect-video w-full rounded-lg" />
+          </div>
+        </div>
+        {/* Locale tabs + fields */}
+        <div className="p-6 border border-gray-200 rounded-lg bg-white space-y-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-10 w-40 rounded-md" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-10 w-full max-w-xl" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-24 w-full max-w-xl" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-10 w-full max-w-xl" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full max-w-xl" />
+            </div>
+            <div className="flex items-center space-x-3">
+              <Skeleton className="h-4 w-4 rounded" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  // List View - section selection
-  return (
-    <div className="max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-gray-900">Content</h1>
-        <p className="text-gray-500 mt-2">
-          Manage your website content. Click on a section to expand and edit.
-        </p>
-      </div>
-
-      {/* Info banner about Services */}
-      <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
-        <div className="flex items-start gap-3">
-          <Settings className="h-5 w-5 text-primary mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-gray-900">
-              Packages are managed in Services
-            </p>
-            <p className="text-sm text-gray-600">
-              The Services section is the single source of truth for all packages.
-              Packages shown on the Home page are automatically synced from here.
-            </p>
+  if (variant === "grid") {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-72" />
+            <Skeleton className="h-3 w-56" />
+          </div>
+          <Skeleton className="h-9 w-20" />
+        </div>
+        {/* Grid of images */}
+        <div className="p-6 border border-gray-200 rounded-lg bg-white">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[4/3] w-full rounded-lg" />
+            ))}
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Content Sections */}
+  // Default: locale variant (text fields + tabs, no image)
+  return (
+    <div className="space-y-6">
+      {/* Header */}
       <div className="space-y-2">
-        {contentSections.map((section) => (
-          <div
-            key={section.id}
-            className="border border-gray-200 rounded-lg overflow-hidden bg-white"
-          >
-            {/* Section Header */}
-            <button
-              type="button"
-              onClick={() => toggleSection(section.id)}
-              className={cn(
-                "w-full flex items-center justify-between p-4 text-left transition-colors duration-200",
-                expandedSection === section.id
-                  ? "bg-primary/5 border-b border-gray-200"
-                  : "hover:bg-gray-50"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    "p-2 rounded-lg",
-                    expandedSection === section.id
-                      ? "bg-primary/10 text-primary"
-                      : "bg-gray-100 text-gray-600"
-                  )}
-                >
-                  {section.icon}
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">{section.title}</h3>
-                  <p className="text-sm text-gray-500">{section.description}</p>
-                </div>
-              </div>
-              <ChevronRight
-                className={cn(
-                  "h-5 w-5 text-gray-400 transition-transform duration-200",
-                  expandedSection === section.id && "rotate-90"
-                )}
-              />
-            </button>
-
-            {/* Subsections */}
-            {expandedSection === section.id && (
-              <div className="p-2">
-                {section.subsections.map((subsection) => (
-                  <button
-                    key={subsection.id}
-                    type="button"
-                    onClick={() =>
-                      handleSubsectionClick(section.id, subsection.id)
-                    }
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-gray-100 transition-all duration-200"
-                  >
-                    <Palette className="h-4 w-4 text-gray-400" />
-                    <span className="font-medium">{subsection.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-4 w-72" />
+        <Skeleton className="h-3 w-56" />
+      </div>
+      {/* Tabs row + Save button */}
+      <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+        <Skeleton className="h-10 w-40 rounded-md" />
+        <Skeleton className="h-9 w-32" />
+      </div>
+      {/* First field card */}
+      <div className="p-6 border border-gray-200 rounded-lg bg-white space-y-2">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-10 w-full max-w-xl" />
+      </div>
+      {/* Locale fields card (title, description, cta, etc.) */}
+      <div className="p-6 border border-gray-200 rounded-lg bg-white space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-10 w-full max-w-xl" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-24 w-full max-w-xl" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-10 w-full max-w-xl" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-10 w-full max-w-xl" />
+        </div>
       </div>
     </div>
   );
