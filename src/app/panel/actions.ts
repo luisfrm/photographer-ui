@@ -23,6 +23,10 @@ import type {
   CmsServicesProcessLocale,
   CmsServicesFaqContent,
   CmsServicesFaqLocale,
+  CmsContactInfoContent,
+  CmsContactInfoLocale,
+  CmsGeneralContent,
+  CmsGeneralLocale,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -805,6 +809,143 @@ export async function saveServicesFaqLocaleContent(
   };
 
   const { error } = await saveContentAction("services.faq", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+// ─── Contact Info-Specific Actions ─────────────────────────
+
+const CONTACT_INFO_DEFAULTS: CmsContactInfoContent = {
+  locales: {
+    en: {
+      title: "Get In Touch",
+      subtitle:
+        "I'd love to hear about your vision and discuss how we can bring it to life.",
+      email: "hello@example.com",
+      phone: "+1 555 000 0000",
+      location: "",
+      socialLinks: [],
+    },
+    es: {
+      title: "Contáctanos",
+      subtitle: "Me encantaría escuchar sobre tu visión y cómo hacerla realidad.",
+      email: "hola@example.com",
+      phone: "+1 555 000 0000",
+      location: "",
+      socialLinks: [],
+    },
+  },
+};
+
+export async function getContactInfo(): Promise<CmsContactInfoContent> {
+  const { data, error } = await getContentAction("contact.info");
+
+  if (error || !data) {
+    return CONTACT_INFO_DEFAULTS;
+  }
+
+  const d = data as CmsContactInfoContent;
+  return {
+    locales: {
+      en: { ...CONTACT_INFO_DEFAULTS.locales.en, ...d.locales?.en },
+      es: { ...CONTACT_INFO_DEFAULTS.locales.es, ...d.locales?.es },
+    },
+  };
+}
+
+export async function saveContactInfoLocaleContent(
+  locale: Locale,
+  localeData: CmsContactInfoLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getContactInfo();
+
+  const updated: CmsContactInfoContent = {
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("contact.info", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+// ─── General (Global Brand)-Specific Actions ────────────────
+
+const GENERAL_DEFAULTS: CmsGeneralContent = {
+  logoKey: "",
+  locales: {
+    en: {
+      title: "Darianny Salas",
+      slogan: "Capturing moments, creating memories.",
+    },
+    es: {
+      title: "Darianny Salas",
+      slogan: "Capturando momentos, creando recuerdos.",
+    },
+  },
+};
+
+export async function getGeneral(): Promise<CmsGeneralContent> {
+  const { data, error } = await getContentAction("global.general");
+
+  if (error || !data) {
+    return GENERAL_DEFAULTS;
+  }
+
+  const d = data as CmsGeneralContent;
+  return {
+    logoKey: d.logoKey ?? GENERAL_DEFAULTS.logoKey,
+    locales: {
+      en: { ...GENERAL_DEFAULTS.locales.en, ...d.locales?.en },
+      es: { ...GENERAL_DEFAULTS.locales.es, ...d.locales?.es },
+    },
+  };
+}
+
+export async function saveGeneralLocaleContent(
+  locale: Locale,
+  localeData: CmsGeneralLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getGeneral();
+
+  const updated: CmsGeneralContent = {
+    logoKey: current.logoKey,
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("global.general", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+export async function saveGeneralLogo(
+  logoKey: string
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getGeneral();
+
+  const updated: CmsGeneralContent = {
+    logoKey,
+    locales: current.locales,
+  };
+
+  const { error } = await saveContentAction("global.general", updated);
 
   if (error) {
     return { success: false, error };

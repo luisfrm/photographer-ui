@@ -56,6 +56,24 @@ export const LOCALE_NAMES: Record<Locale, string> = {
   es: "Español",
 };
 
+// ─── Global Sections ────────────────────────────────────────
+
+/** Global brand identity: per-locale brand name + slogan. */
+export interface CmsGeneralLocale {
+  title: string;
+  slogan: string;
+}
+
+/** Global brand section: shared R2 logo key + per-locale title and slogan.
+ *  Used by the header (logo) and the footer (logo + title + slogan). */
+export interface CmsGeneralContent extends CmsContentBase {
+  /** R2 object key for the brand logo (e.g. "general/1234-logo.webp"). */
+  logoKey: string;
+  locales: {
+    [K in Locale]: CmsGeneralLocale;
+  };
+}
+
 // ─── Home Sections ──────────────────────────────────────────
 
 /** Hero locale-specific content (text, CTA) */
@@ -237,12 +255,15 @@ export interface CmsAboutTestimonialsContent extends CmsContentBase {
 
 // ─── Contact Sections ───────────────────────────────────────
 
-/** Contact Info section */
-export interface CmsContactInfoContent extends CmsContentBase {
+/** Contact Info section: shared per-locale text + contact details + social links. */
+export interface CmsContactInfoLocale {
   title: string;
   subtitle?: string;
   email: string;
   phone: string;
+  /** Short location label (e.g. "Utah, US"). */
+  location?: string;
+  /** Full street address. Kept in the CMS schema but not consumed by the UI yet. */
   address?: string;
   mapUrl?: string;
   socialLinks?: {
@@ -251,18 +272,10 @@ export interface CmsContactInfoContent extends CmsContentBase {
   }[];
 }
 
-/** Contact Form section: form field labels and config */
-export interface CmsContactFormContent extends CmsContentBase {
-  nameLabel: string;
-  namePlaceholder: string;
-  emailLabel: string;
-  emailPlaceholder: string;
-  messageLabel: string;
-  messagePlaceholder: string;
-  submitLabel: string;
-  loadingLabel: string;
-  successMessage: string;
-  errorMessage: string;
+export interface CmsContactInfoContent extends CmsContentBase {
+  locales: {
+    [K in Locale]: CmsContactInfoLocale;
+  };
 }
 
 /** Contact Scheduling section */
@@ -286,6 +299,8 @@ export interface CmsContactSchedulingContent extends CmsContentBase {
  * ```
  */
 export type CmsSectionData = {
+  // Global
+  "global.general": CmsGeneralContent;
   // Home
   "home.hero": CmsHeroContent;
   "home.carousel": CmsCarouselContent;
@@ -304,7 +319,6 @@ export type CmsSectionData = {
   "about.testimonials": CmsAboutTestimonialsContent;
   // Contact
   "contact.info": CmsContactInfoContent;
-  "contact.form": CmsContactFormContent;
   "contact.scheduling": CmsContactSchedulingContent;
 };
 
@@ -315,6 +329,7 @@ export type CmsSectionKey = keyof CmsSectionData;
  * All valid CMS section strings (for runtime validation).
  */
 export const CMS_SECTION_KEYS: CmsSectionKey[] = [
+  "global.general",
   "home.hero",
   "home.carousel",
   "home.about",
@@ -329,7 +344,6 @@ export const CMS_SECTION_KEYS: CmsSectionKey[] = [
   "about.approach",
   "about.testimonials",
   "contact.info",
-  "contact.form",
   "contact.scheduling",
 ];
 

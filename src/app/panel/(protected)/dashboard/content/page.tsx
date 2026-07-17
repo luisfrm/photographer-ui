@@ -10,6 +10,7 @@ import {
   Settings,
   Palette,
   ArrowLeft,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,6 +23,8 @@ import ServicesPackagesEditor from "@/components/panel/editors/ServicesPackagesE
 import ServicesIncludedEditor from "@/components/panel/editors/ServicesIncludedEditor";
 import ServicesProcessEditor from "@/components/panel/editors/ServicesProcessEditor";
 import ServicesFaqEditor from "@/components/panel/editors/ServicesFaqEditor";
+import ContactInfoEditor from "@/components/panel/editors/ContactInfoEditor";
+import GeneralEditor from "@/components/panel/editors/GeneralEditor";
 import {
   getHeroContent,
   getCarouselContent,
@@ -32,6 +35,8 @@ import {
   getServicesIncluded,
   getServicesProcess,
   getServicesFaq,
+  getContactInfo,
+  getGeneral,
 } from "@/app/panel/actions";
 import type { CmsImage, CmsSectionKey } from "@/types/cms";
 
@@ -46,6 +51,13 @@ type ContentSection = {
 };
 
 const contentSections: ContentSection[] = [
+  {
+    id: "global",
+    title: "Global",
+    icon: <Globe className="h-5 w-5" />,
+    description: "Brand identity shared across the site",
+    subsections: [{ id: "general", name: "General" }],
+  },
   {
     id: "home",
     title: "Home",
@@ -90,7 +102,6 @@ const contentSections: ContentSection[] = [
     description: "Manage contact page and form",
     subsections: [
       { id: "info", name: "Contact Info" },
-      { id: "form", name: "Form Configuration" },
       { id: "scheduling", name: "Scheduling" },
     ],
   },
@@ -102,6 +113,7 @@ const contentSections: ContentSection[] = [
  * case in `renderEditor` below.
  */
 const loaders: Record<string, () => Promise<unknown>> = {
+  "global.general": getGeneral,
   "home.hero": getHeroContent,
   "home.carousel": getCarouselContent,
   "home.about": getAboutContent,
@@ -111,6 +123,7 @@ const loaders: Record<string, () => Promise<unknown>> = {
   "services.included": getServicesIncluded,
   "services.process": getServicesProcess,
   "services.faq": getServicesFaq,
+  "contact.info": getContactInfo,
 };
 
 type DataMap = Record<string, unknown>;
@@ -123,6 +136,7 @@ const EMPTY_DATA: DataMap = {};
  */
 type SkeletonVariant = "locale" | "locale-image" | "grid";
 const SKELETON_VARIANTS: Record<string, SkeletonVariant> = {
+  "global.general": "locale-image",
   "home.hero": "locale-image",
   "home.about": "locale-image",
   "home.carousel": "grid",
@@ -132,11 +146,16 @@ const SKELETON_VARIANTS: Record<string, SkeletonVariant> = {
   "services.included": "locale",
   "services.process": "locale",
   "services.faq": "locale",
+  "contact.info": "locale",
 };
 
 // ─── Editor dispatch ───────────────────────────────────────
 
 function renderEditor(key: string, data: unknown) {
+  // Global
+  if (key === "global.general")
+    return <GeneralEditor initialData={data as never} />;
+
   // Home
   if (key === "home.hero") return <HeroEditor initialData={data as never} />;
   if (key === "home.carousel")
@@ -160,6 +179,10 @@ function renderEditor(key: string, data: unknown) {
     return <ServicesProcessEditor initialData={data as never} />;
   if (key === "services.faq")
     return <ServicesFaqEditor initialData={data as never} />;
+
+  // Contact
+  if (key === "contact.info")
+    return <ContactInfoEditor initialData={data as never} />;
 
   // Placeholder for unimplemented editors
   const [sectionId, subsectionId] = key.split(".");
