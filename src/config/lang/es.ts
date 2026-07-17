@@ -24,45 +24,6 @@ export const es: SiteContent = {
     cta: "Ver mi trabajo",
   },
 
-  services: {
-    title: "Servicios",
-    items: [
-      {
-        title: "Fotografía de Bodas",
-        features: [
-          "Consulta previa a la boda",
-          "Cobertura completa del día",
-          "Álbumes de boda personalizados",
-          "Galería online y descargas digitales",
-          "Video destacado y presentación",
-        ],
-        cta: "Contáctanos",
-      },
-      {
-        title: "Fotografía de Retratos",
-        features: [
-          "Consulta personalizada",
-          "Opciones en ubicación y estudio",
-          "Servicios profesionales de pelo y maquillaje",
-          "Retoque y edición",
-          "Paquetes de impresión personalizados",
-        ],
-        cta: "Contáctanos",
-      },
-      {
-        title: "Fotografía de Naturaleza",
-        features: [
-          "Tours fotográficos guiados",
-          "Sesiones estacionales y de eventos especiales",
-          "Impresiones y enmarcado personalizado",
-          "Colecciones de edición limitada",
-          "Libros y calendarios personalizados",
-        ],
-        cta: "Contáctanos",
-      },
-    ],
-  },
-
   pricing: {
     title: "Servicios",
     packages: [

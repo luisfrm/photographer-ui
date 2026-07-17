@@ -15,15 +15,6 @@ export interface AboutContent {
   cta: string;
 }
 
-export interface ServicesContent {
-  title: string;
-  items: {
-    title: string;
-    features: string[];
-    cta: string;
-  }[];
-}
-
 export interface PricingContent {
   title: string;
   packages: {
@@ -84,7 +75,6 @@ export interface SiteContent {
   nav: NavItem[];
   hero: StaticHeroContent;
   about: AboutContent;
-  services: ServicesContent;
   pricing: PricingContent;
   contact: ContactContent;
   footer: FooterContent;

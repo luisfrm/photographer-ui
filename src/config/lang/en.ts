@@ -2,7 +2,6 @@ import { SiteContent } from "./types";
 
 export const en: SiteContent = {
   nav: [
-    { name: "Services", href: "/en/services" },
     { name: "Packages", href: "/en/services" },
     { name: "About Us", href: "/en/about" },
     { name: "Contact", href: "/en/contact" },
@@ -22,45 +21,6 @@ export const en: SiteContent = {
       "My work focuses on creating timeless, elegant images that tell your unique story. Every session is tailored to reflect your personality and style, ensuring memories that last a lifetime.",
     ],
     cta: "View My Work",
-  },
-
-  services: {
-    title: "Services",
-    items: [
-      {
-        title: "Wedding Photography",
-        features: [
-          "Pre-Wedding Consultation",
-          "Full-Day Coverage",
-          "Customized Wedding Albums",
-          "Online Gallery and Digital Downloads",
-          "Highlight Video and Slideshow",
-        ],
-        cta: "Get In Touch",
-      },
-      {
-        title: "Portrait Photography",
-        features: [
-          "Personalized Consultation",
-          "On-Location and Studio Options",
-          "Professional Hair & Makeup Services",
-          "Retouching and Editing",
-          "Custom Print Packages",
-        ],
-        cta: "Get In Touch",
-      },
-      {
-        title: "Nature Photography",
-        features: [
-          "Guided Photo Tours",
-          "Seasonal & Special Event Shoots",
-          "Prints and Custom Framing",
-          "Limited Edition Collections",
-          "Custom Books & Calendars",
-        ],
-        cta: "Get In Touch",
-      },
-    ],
   },
 
   pricing: {

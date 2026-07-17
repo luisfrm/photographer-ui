@@ -1,6 +1,3 @@
-import { Button } from "../ui/button";
-import Link from "next/link";
-import Image from "next/image";
 import { getServicesPackages } from "@/app/panel/actions";
 import type { CmsServicePackage, Locale } from "@/types/cms";
 
@@ -46,22 +43,18 @@ function PackageColumn({
   pkg: CmsServicePackage;
   isLast: boolean;
 }) {
-  const placeholderText = encodeURIComponent(
-    `${pkg.name} Photography`
-  );
-
   return (
     <div
       className={
-        isLast
+        (isLast
           ? "md:pt-8"
-          : "md:border-r md:pr-8 pt-8 border-gray-300"
+          : "md:border-r md:pr-8 pt-8 border-gray-300") + " flex flex-col h-full"
       }
     >
       <h3 className="text-2xl font-serif mb-4 text-black">{pkg.name}</h3>
 
       {pkg.popular && (
-        <span className="inline-block mb-2 bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded font-medium">
+        <span className="self-start mb-2 bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded font-medium">
           Most Popular
         </span>
       )}
@@ -72,27 +65,12 @@ function PackageColumn({
       </div>
 
       {pkg.features.length > 0 && (
-        <ul className="space-y-3 mb-8 text-gray-600">
+        <ul className="space-y-3 text-gray-600 flex-1">
           {pkg.features.map((feature, index) => (
             <li key={index}>• {feature}</li>
           ))}
         </ul>
       )}
-
-      <div className="mb-8">
-        <div className="relative h-64 mb-6">
-          <Image
-            src={`/placeholder.svg?height=256&width=400&text=${placeholderText}`}
-            alt={`${pkg.name} Photography Package`}
-            fill
-            className="object-cover rounded-lg"
-          />
-        </div>
-      </div>
-
-      <Button variant="outline" asChild>
-        <Link href="#contact">Get In Touch</Link>
-      </Button>
     </div>
   );
 }

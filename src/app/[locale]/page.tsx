@@ -1,7 +1,6 @@
 import Contact from "@/components/home/Contact";
 import About from "@/components/home/About";
 import Hero from "@/components/home/Hero";
-import Services from "@/components/home/Services";
 import { PageProps } from "@/types/pages";
 import InfiniteCarousel from "@/components/home/infinite-carousel";
 import Gallery from "@/components/home/Gallery";
