@@ -13,6 +13,18 @@ import type {
   CmsAboutContent,
   CmsAboutLocale,
   CmsGalleryContent,
+  CmsServicesMetaContent,
+  CmsServicesMetaLocale,
+  CmsServicesPackagesContent,
+  CmsServicesPackagesLocale,
+  CmsServicePackage,
+  CmsServicesIncludedContent,
+  CmsServicesIncludedLocale,
+  CmsServicesProcessContent,
+  CmsServicesProcessLocale,
+  CmsServicesFaqContent,
+  CmsServicesFaqLocale,
+  CmsFaqItem,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -134,6 +146,19 @@ export type {
   CmsImage,
   CmsAboutContent,
   CmsAboutLocale,
+  CmsGalleryContent,
+  CmsServicesMetaContent,
+  CmsServicesMetaLocale,
+  CmsServicesPackagesContent,
+  CmsServicesPackagesLocale,
+  CmsServicePackage,
+  CmsServicesIncludedContent,
+  CmsServicesIncludedLocale,
+  CmsServicesProcessContent,
+  CmsServicesProcessLocale,
+  CmsServicesFaqContent,
+  CmsServicesFaqLocale,
+  CmsFaqItem,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -540,6 +565,251 @@ export async function saveGalleryContent(
         console.error("Failed to delete old gallery images:", keysToDelete);
       }
     }
+  }
+
+  return { success: true, error: null };
+}
+
+// --- Services Meta-Specific Actions ---
+
+const SERVICES_META_DEFAULTS: CmsServicesMetaContent = {
+  locales: {
+    en: {
+      title: "Services",
+      description:
+        "Professional photography services tailored to capture your unique story. Choose from our carefully crafted packages designed to meet every need and budget.",
+    },
+    es: {
+      title: "Servicios",
+      description:
+        "Servicios de fotografía profesional diseñados para capturar tu historia única. Elige entre nuestros paquetes cuidadosamente elaborados para satisfacer cada necesidad y presupuesto.",
+    },
+  },
+};
+
+export async function getServicesMeta(): Promise<CmsServicesMetaContent> {
+  const { data, error } = await getContentAction("services.meta");
+
+  if (error || !data) {
+    return SERVICES_META_DEFAULTS;
+  }
+
+  return {
+    ...SERVICES_META_DEFAULTS,
+    ...data,
+    locales: {
+      en: { ...SERVICES_META_DEFAULTS.locales.en, ...(data as CmsServicesMetaContent).locales?.en },
+      es: { ...SERVICES_META_DEFAULTS.locales.es, ...(data as CmsServicesMetaContent).locales?.es },
+    },
+  };
+}
+
+export async function saveServicesMetaLocaleContent(
+  locale: Locale,
+  localeData: CmsServicesMetaLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getServicesMeta();
+
+  const updated: CmsServicesMetaContent = {
+    ...current,
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("services.meta", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+// --- Services Packages-Specific Actions ---
+
+const SERVICES_PACKAGES_DEFAULTS: CmsServicesPackagesContent = {
+  locales: {
+    en: { title: "Our Packages", packages: [] },
+    es: { title: "Nuestros Paquetes", packages: [] },
+  },
+};
+
+export async function getServicesPackages(): Promise<CmsServicesPackagesContent> {
+  const { data, error } = await getContentAction("services.packages");
+
+  if (error || !data) {
+    return SERVICES_PACKAGES_DEFAULTS;
+  }
+
+  const d = data as CmsServicesPackagesContent;
+  return {
+    locales: {
+      en: { ...SERVICES_PACKAGES_DEFAULTS.locales.en, ...d.locales?.en },
+      es: { ...SERVICES_PACKAGES_DEFAULTS.locales.es, ...d.locales?.es },
+    },
+  };
+}
+
+export async function saveServicesPackagesLocaleContent(
+  locale: Locale,
+  localeData: CmsServicesPackagesLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getServicesPackages();
+
+  const updated: CmsServicesPackagesContent = {
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("services.packages", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+// --- Services Included-Specific Actions ---
+
+const SERVICES_INCLUDED_DEFAULTS: CmsServicesIncludedContent = {
+  locales: {
+    en: { title: "What's Included", items: [] },
+    es: { title: "Qué Incluye", items: [] },
+  },
+};
+
+export async function getServicesIncluded(): Promise<CmsServicesIncludedContent> {
+  const { data, error } = await getContentAction("services.included");
+
+  if (error || !data) {
+    return SERVICES_INCLUDED_DEFAULTS;
+  }
+
+  const d = data as CmsServicesIncludedContent;
+  return {
+    locales: {
+      en: { ...SERVICES_INCLUDED_DEFAULTS.locales.en, ...d.locales?.en },
+      es: { ...SERVICES_INCLUDED_DEFAULTS.locales.es, ...d.locales?.es },
+    },
+  };
+}
+
+export async function saveServicesIncludedLocaleContent(
+  locale: Locale,
+  localeData: CmsServicesIncludedLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getServicesIncluded();
+
+  const updated: CmsServicesIncludedContent = {
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("services.included", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+// --- Services Process-Specific Actions ---
+
+const SERVICES_PROCESS_DEFAULTS: CmsServicesProcessContent = {
+  locales: {
+    en: { title: "Our Process", steps: [] },
+    es: { title: "Nuestro Proceso", steps: [] },
+  },
+};
+
+export async function getServicesProcess(): Promise<CmsServicesProcessContent> {
+  const { data, error } = await getContentAction("services.process");
+
+  if (error || !data) {
+    return SERVICES_PROCESS_DEFAULTS;
+  }
+
+  const d = data as CmsServicesProcessContent;
+  return {
+    locales: {
+      en: { ...SERVICES_PROCESS_DEFAULTS.locales.en, ...d.locales?.en },
+      es: { ...SERVICES_PROCESS_DEFAULTS.locales.es, ...d.locales?.es },
+    },
+  };
+}
+
+export async function saveServicesProcessLocaleContent(
+  locale: Locale,
+  localeData: CmsServicesProcessLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getServicesProcess();
+
+  const updated: CmsServicesProcessContent = {
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("services.process", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+// --- Services FAQ-Specific Actions ---
+
+const SERVICES_FAQ_DEFAULTS: CmsServicesFaqContent = {
+  locales: {
+    en: { title: "Frequently Asked Questions", items: [] },
+    es: { title: "Preguntas Frecuentes", items: [] },
+  },
+};
+
+export async function getServicesFaq(): Promise<CmsServicesFaqContent> {
+  const { data, error } = await getContentAction("services.faq");
+
+  if (error || !data) {
+    return SERVICES_FAQ_DEFAULTS;
+  }
+
+  const d = data as CmsServicesFaqContent;
+  return {
+    locales: {
+      en: { ...SERVICES_FAQ_DEFAULTS.locales.en, ...d.locales?.en },
+      es: { ...SERVICES_FAQ_DEFAULTS.locales.es, ...d.locales?.es },
+    },
+  };
+}
+
+export async function saveServicesFaqLocaleContent(
+  locale: Locale,
+  localeData: CmsServicesFaqLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getServicesFaq();
+
+  const updated: CmsServicesFaqContent = {
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("services.faq", updated);
+
+  if (error) {
+    return { success: false, error };
   }
 
   return { success: true, error: null };
