@@ -9,7 +9,12 @@ import MobileNavigation from "./MobileNavigation";
 import Logo from "./Logo";
 import { getContent, getLocaleFromPathname } from "@/config";
 
-export default function Header() {
+type HeaderProps = {
+  /** R2 object key for the brand logo (from CMS). */
+  logoKey: string;
+};
+
+export default function Header({ logoKey }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const locale = getLocaleFromPathname(pathname);
@@ -24,7 +29,7 @@ export default function Header() {
             href={`/${locale}`}
             className="flex items-center space-x-2 text-foreground hover:scale-105 transition-all"
           >
-            <Logo />
+            <Logo src={logoKey} />
           </Link>
 
           {/* Desktop Navigation */}

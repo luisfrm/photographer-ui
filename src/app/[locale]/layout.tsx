@@ -2,8 +2,11 @@ import { notFound } from "next/navigation";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import Widgets from "@/components/common/Widgets";
+import { getGeneral } from "@/app/panel/actions";
 
-const LOCALES = ["en", "es"];
+const LOCALES = ["en", "es"] as const;
+
+export const revalidate = 60;
 
 export default async function LocaleLayout({
   children,
@@ -14,15 +17,17 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
 
-  if (!LOCALES.includes(locale)) {
+  if (!LOCALES.includes(locale as (typeof LOCALES)[number])) {
     notFound();
   }
 
+  const general = await getGeneral();
+
   return (
     <>
-      <Header />
+      <Header logoKey={general.logoKey} />
       {children}
-      <Footer />
+      <Footer locale={locale as "en" | "es"} />
       <Widgets />
     </>
   );
