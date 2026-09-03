@@ -173,7 +173,14 @@ export async function refreshAccessToken(
     throw new Error(message);
   }
 
-  return normalizeTokens(json as Parameters<typeof normalizeTokens>[0]);
+  const tokens = normalizeTokens(json as Parameters<typeof normalizeTokens>[0]);
+  // Google does not re-issue refresh_token on refresh requests,
+  // so we must preserve the original refresh token to avoid losing connection.
+  if (!tokens.refresh_token) {
+    tokens.refresh_token = refreshToken;
+  }
+
+  return tokens;
 }
 
 // ─── Calendar events (network) ─────────────────────────────

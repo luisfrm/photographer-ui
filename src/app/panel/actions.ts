@@ -1313,10 +1313,13 @@ export async function createAppointmentAction(
   input: NewAppointmentInput
 ): Promise<{ data: Appointment | null; error: string | null }> {
   try {
-    const { name, email, date, start_time, end_time, timezone } = input;
+    const { name, email, phone, date, start_time, end_time, timezone } = input;
 
     if (!name?.trim() || !email?.trim()) {
       return { data: null, error: "Name and email are required" };
+    }
+    if (!phone?.trim()) {
+      return { data: null, error: "Phone number is required" };
     }
     if (!isValidEmail(email.trim())) {
       return { data: null, error: "Please enter a valid email address" };
@@ -1369,7 +1372,9 @@ export async function createAppointmentAction(
     try {
       const eventId = await syncAppointmentToGoogle(appointment);
       if (eventId) {
-        await supabase
+        // Must use service client to update appointments because anon user lacks UPDATE permission
+        const service = createServiceClient();
+        await service
           .from("appointments")
           .update({ google_event_id: eventId, updated_at: new Date().toISOString() })
           .eq("id", appointment.id);
@@ -1399,6 +1404,7 @@ async function syncAppointmentToGoogle(
   const { data } = await service
     .from("settings")
     .select("user_id, google_tokens")
+    .not("google_tokens", "is", null)
     .limit(1)
     .maybeSingle();
 
@@ -1411,7 +1417,10 @@ async function syncAppointmentToGoogle(
     if (!tokens.refresh_token) return null;
     const refreshed = await refreshAccessToken(tokens.refresh_token);
     accessToken = refreshed.access_token;
-    // Persist refreshed tokens best-effort.
+    // Persist refreshed tokens best-effort, keeping existing email
+    if (tokens.email && !refreshed.email) {
+      refreshed.email = tokens.email;
+    }
     await service
       .from("settings")
       .update({ google_tokens: refreshed, updated_at: new Date().toISOString() })
