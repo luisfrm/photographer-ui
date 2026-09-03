@@ -43,7 +43,7 @@ export default function GoogleCalendarCard() {
       );
     }
 
-    window.history.replaceState(null, "", "/panel/dashboard/settings");
+    window.history.replaceState(null, "", "/panel/settings");
   }, [searchParams]);
 
   const handleDisconnect = async () => {
