@@ -26,6 +26,7 @@ import ServicesFaqEditor from "@/components/panel/editors/ServicesFaqEditor";
 import ContactInfoEditor from "@/components/panel/editors/ContactInfoEditor";
 import ContactSchedulingEditor from "@/components/panel/editors/ContactSchedulingEditor";
 import GeneralEditor from "@/components/panel/editors/GeneralEditor";
+import GlobalContactEditor from "@/components/panel/editors/GlobalContactEditor";
 import {
   getHeroContent,
   getCarouselContent,
@@ -39,6 +40,7 @@ import {
   getContactInfo,
   getContactScheduling,
   getGeneral,
+  getGlobalContact,
 } from "@/app/panel/actions";
 import type { CmsImage, CmsSectionKey } from "@/types/cms";
 
@@ -57,8 +59,11 @@ const contentSections: ContentSection[] = [
     id: "global",
     title: "Global",
     icon: <Globe className="h-5 w-5" />,
-    description: "Brand identity shared across the site",
-    subsections: [{ id: "general", name: "General" }],
+    description: "Brand identity, contact channels and social media",
+    subsections: [
+      { id: "general", name: "General (Brand & Logo)" },
+      { id: "contact", name: "Contact & Socials" },
+    ],
   },
   {
     id: "home",
@@ -116,6 +121,7 @@ const contentSections: ContentSection[] = [
  */
 const loaders: Record<string, () => Promise<unknown>> = {
   "global.general": getGeneral,
+  "global.contact": getGlobalContact,
   "home.hero": getHeroContent,
   "home.carousel": getCarouselContent,
   "home.about": getAboutContent,
@@ -140,6 +146,7 @@ const EMPTY_DATA: DataMap = {};
 type SkeletonVariant = "locale" | "locale-image" | "grid";
 const SKELETON_VARIANTS: Record<string, SkeletonVariant> = {
   "global.general": "locale-image",
+  "global.contact": "locale",
   "home.hero": "locale-image",
   "home.about": "locale-image",
   "home.carousel": "grid",
@@ -159,6 +166,8 @@ function renderEditor(key: string, data: unknown) {
   // Global
   if (key === "global.general")
     return <GeneralEditor initialData={data as never} />;
+  if (key === "global.contact")
+    return <GlobalContactEditor initialData={data as never} />;
 
   // Home
   if (key === "home.hero") return <HeroEditor initialData={data as never} />;

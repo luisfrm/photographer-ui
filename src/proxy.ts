@@ -5,13 +5,19 @@ import type { NextRequest } from "next/server";
 // Panel routes that are accessible without authentication
 const PUBLIC_PANEL_ROUTES = [
   "/panel/login",
-  "/panel/sign-up",
 ];
 
 export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
 
   const pathname = request.nextUrl.pathname;
+
+  // Legacy sign-up route redirects to login
+  if (pathname === "/panel/sign-up" || pathname.startsWith("/panel/sign-up/")) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/panel/login";
+    return NextResponse.redirect(loginUrl);
+  }
 
   // Check if the route is public — if so, allow access without authentication
   const isPublicRoute = PUBLIC_PANEL_ROUTES.some(

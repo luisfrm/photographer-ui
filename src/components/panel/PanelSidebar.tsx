@@ -3,16 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { FileText, Settings, Calendar, LogOut, User, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, Calendar, LogOut, User, Users, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/common/Logo";
 import { useUser } from "@/hooks/useUser";
 import { signOutAction } from "@/app/panel/actions";
 
 const navigationItems = [
-  { name: "Content", href: "/panel/dashboard/content", icon: FileText },
-  { name: "Settings", href: "/panel/dashboard/settings", icon: Settings },
-  { name: "Appointments", href: "/panel/dashboard/appointments", icon: Calendar },
+  { name: "Dashboard", href: "/panel/dashboard", icon: LayoutDashboard },
+  { name: "Content", href: "/panel/content", icon: FileText },
+  { name: "Appointments", href: "/panel/appointments", icon: Calendar },
+  { name: "Users", href: "/panel/users", icon: Users },
+  { name: "Settings", href: "/panel/settings", icon: Settings },
 ];
 
 export default function PanelSidebar() {

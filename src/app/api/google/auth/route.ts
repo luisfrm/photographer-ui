@@ -11,7 +11,7 @@ import {
 
 export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
-  const settingsUrl = `${origin}/panel/dashboard/settings`;
+  const settingsUrl = `${origin}/panel/settings`;
 
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
