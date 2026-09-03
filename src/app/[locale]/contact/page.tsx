@@ -1,8 +1,8 @@
 import PageSection from "@/components/common/PageSection";
 import { getContactInfo } from "@/app/panel/actions";
-import { LOCALES } from "@/types/cms";
-import ContactInfoBlock from "./ContactInfoBlock";
-import ContactFormWithScheduling from "./ContactFormWithScheduling";
+import { LOCALES, type Locale } from "@/types/cms";
+import ContactInfoBlock from "@/components/contact/ContactInfoBlock";
+import ContactFormWithScheduling from "@/components/contact/ContactFormWithScheduling";
 import { notFound } from "next/navigation";
 
 export default async function ContactPage({
@@ -16,16 +16,17 @@ export default async function ContactPage({
     notFound();
   }
 
+  const currentLocale = locale as Locale;
   const data = await getContactInfo();
-  const info = data.locales[locale as keyof typeof data.locales];
+  const info = data.locales[currentLocale];
 
   return (
     <PageSection>
       <section className="pt-24 pb-16">
         <div>
-          <div className="grid md:grid-cols-2 gap-16">
-            <ContactInfoBlock info={info} />
-            <ContactFormWithScheduling />
+          <div className="grid md:grid-cols-2 gap-16 items-start">
+            <ContactInfoBlock info={info} asHeading="h1" />
+            <ContactFormWithScheduling locale={currentLocale} />
           </div>
         </div>
       </section>

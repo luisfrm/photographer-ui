@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowLeft,
   Mail,
   Phone,
   MapPin,
@@ -15,9 +14,10 @@ import {
 } from "lucide-react";
 import type { CmsContactInfoLocale } from "@/types/cms";
 
-type ContactInfoBlockProps = {
+interface ContactInfoBlockProps {
   info: CmsContactInfoLocale;
-};
+  asHeading?: "h1" | "h2";
+}
 
 const SOCIAL_ICON_MAP: Record<string, LucideIcon> = {
   Instagram,
@@ -41,10 +41,15 @@ function getSocialIcon(platform: string | undefined): LucideIcon {
   return SOCIAL_ICON_MAP[platform] ?? Link2;
 }
 
-export default function ContactInfoBlock({ info }: ContactInfoBlockProps) {
+export default function ContactInfoBlock({
+  info,
+  asHeading: Heading = "h1",
+}: Readonly<ContactInfoBlockProps>) {
   return (
     <div>
-      <h1 className="text-6xl font-serif mb-8 text-black">{info.title}</h1>
+      <Heading className="text-5xl sm:text-6xl font-serif mb-8 text-black">
+        {info.title}
+      </Heading>
 
       {info.subtitle && (
         <p className="text-gray-600 text-lg mb-8">{info.subtitle}</p>
@@ -53,7 +58,7 @@ export default function ContactInfoBlock({ info }: ContactInfoBlockProps) {
       <div className="space-y-6">
         {info.email && (
           <div className="flex items-center">
-            <Mail className="w-5 h-5 mr-4 text-black" />
+            <Mail className="w-5 h-5 mr-4 text-black flex-shrink-0" />
             <a
               href={`mailto:${info.email}`}
               className="text-gray-600 hover:text-black transition-colors"
@@ -64,7 +69,7 @@ export default function ContactInfoBlock({ info }: ContactInfoBlockProps) {
         )}
         {info.phone && (
           <div className="flex items-center">
-            <Phone className="w-5 h-5 mr-4 text-black" />
+            <Phone className="w-5 h-5 mr-4 text-black flex-shrink-0" />
             <a
               href={`tel:${info.phone.replace(/\s/g, "")}`}
               className="text-gray-600 hover:text-black transition-colors"
@@ -75,7 +80,7 @@ export default function ContactInfoBlock({ info }: ContactInfoBlockProps) {
         )}
         {info.location && (
           <div className="flex items-center">
-            <MapPin className="w-5 h-5 mr-4 text-black" />
+            <MapPin className="w-5 h-5 mr-4 text-black flex-shrink-0" />
             <span className="text-gray-600">{info.location}</span>
           </div>
         )}
