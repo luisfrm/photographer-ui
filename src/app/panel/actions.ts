@@ -25,6 +25,8 @@ import type {
   CmsServicesFaqLocale,
   CmsContactInfoContent,
   CmsContactInfoLocale,
+  CmsContactSchedulingContent,
+  CmsContactSchedulingLocale,
   CmsGeneralContent,
   CmsGeneralLocale,
   CmsSectionData,
@@ -900,6 +902,65 @@ export async function saveContactInfoLocaleContent(
   return { success: true, error: null };
 }
 
+// ─── Contact Scheduling Actions ────────────────────────────
+
+const CONTACT_SCHEDULING_DEFAULTS: CmsContactSchedulingContent = {
+  locales: {
+    en: {
+      title: "Studio Hours",
+      subtitle: "Available sessions for portraits, events, and commercial projects.",
+      badgeText: "Open for bookings",
+      ctaButtonText: "Book a Session",
+      note: "Live calendar availability with direct confirmation.",
+    },
+    es: {
+      title: "Horarios del Estudio",
+      subtitle: "Sesiones disponibles para retratos, eventos y proyectos comerciales.",
+      badgeText: "Disponible para reservas",
+      ctaButtonText: "Reservar una Sesión",
+      note: "Disponibilidad en tiempo real con confirmación directa.",
+    },
+  },
+};
+
+export async function getContactScheduling(): Promise<CmsContactSchedulingContent> {
+  const { data, error } = await getContentAction("contact.scheduling");
+
+  if (error || !data) {
+    return CONTACT_SCHEDULING_DEFAULTS;
+  }
+
+  const d = data as CmsContactSchedulingContent;
+  return {
+    locales: {
+      en: { ...CONTACT_SCHEDULING_DEFAULTS.locales.en, ...d.locales?.en },
+      es: { ...CONTACT_SCHEDULING_DEFAULTS.locales.es, ...d.locales?.es },
+    },
+  };
+}
+
+export async function saveContactSchedulingLocaleContent(
+  locale: Locale,
+  localeData: CmsContactSchedulingLocale
+): Promise<{ success: boolean; error: string | null }> {
+  const current = await getContactScheduling();
+
+  const updated: CmsContactSchedulingContent = {
+    locales: {
+      ...current.locales,
+      [locale]: localeData,
+    },
+  };
+
+  const { error } = await saveContentAction("contact.scheduling", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
 // ─── General (Global Brand)-Specific Actions ────────────────
 
 const GENERAL_DEFAULTS: CmsGeneralContent = {
@@ -1264,6 +1325,34 @@ async function getAvailabilityWithServiceClient(): Promise<{
 
   const days = buildAvailability(workHours, timezone, new Date(), 14, booked);
   return { data: { timezone, days }, error: null };
+}
+
+/** Public schedule info for landing page / contact section. */
+export async function getPublicStudioHours(): Promise<{
+  workHours: WorkDaySchedule[];
+  timezone: string;
+}> {
+  try {
+    const service = createServiceClient();
+    const { data: settings } = await service
+      .from("settings")
+      .select("work_hours, timezone")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    const workHours = Array.isArray(settings?.work_hours)
+      ? normalizeWorkHours(settings.work_hours as WorkDaySchedule[])
+      : [];
+    const timezone =
+      typeof settings?.timezone === "string" && settings.timezone
+        ? settings.timezone
+        : DEFAULT_TIMEZONE;
+
+    return { workHours, timezone };
+  } catch {
+    return { workHours: [], timezone: DEFAULT_TIMEZONE };
+  }
 }
 
 // ─── Scheduling: Appointments ───────────────────────────────

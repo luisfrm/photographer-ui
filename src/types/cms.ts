@@ -278,12 +278,20 @@ export interface CmsContactInfoContent extends CmsContentBase {
   };
 }
 
-/** Contact Scheduling section */
-export interface CmsContactSchedulingContent extends CmsContentBase {
+/** Contact Scheduling section locale data */
+export interface CmsContactSchedulingLocale {
   title: string;
-  description?: string;
-  embedUrl?: string;
-  ctaLabel?: string;
+  subtitle?: string;
+  badgeText?: string;
+  ctaButtonText?: string;
+  note?: string;
+}
+
+/** Contact Scheduling section content */
+export interface CmsContactSchedulingContent extends CmsContentBase {
+  locales: {
+    [K in Locale]: CmsContactSchedulingLocale;
+  };
 }
 
 // ─── Section Registry ───────────────────────────────────────

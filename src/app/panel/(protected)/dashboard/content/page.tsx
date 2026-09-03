@@ -24,6 +24,7 @@ import ServicesIncludedEditor from "@/components/panel/editors/ServicesIncludedE
 import ServicesProcessEditor from "@/components/panel/editors/ServicesProcessEditor";
 import ServicesFaqEditor from "@/components/panel/editors/ServicesFaqEditor";
 import ContactInfoEditor from "@/components/panel/editors/ContactInfoEditor";
+import ContactSchedulingEditor from "@/components/panel/editors/ContactSchedulingEditor";
 import GeneralEditor from "@/components/panel/editors/GeneralEditor";
 import {
   getHeroContent,
@@ -36,6 +37,7 @@ import {
   getServicesProcess,
   getServicesFaq,
   getContactInfo,
+  getContactScheduling,
   getGeneral,
 } from "@/app/panel/actions";
 import type { CmsImage, CmsSectionKey } from "@/types/cms";
@@ -124,6 +126,7 @@ const loaders: Record<string, () => Promise<unknown>> = {
   "services.process": getServicesProcess,
   "services.faq": getServicesFaq,
   "contact.info": getContactInfo,
+  "contact.scheduling": getContactScheduling,
 };
 
 type DataMap = Record<string, unknown>;
@@ -147,6 +150,7 @@ const SKELETON_VARIANTS: Record<string, SkeletonVariant> = {
   "services.process": "locale",
   "services.faq": "locale",
   "contact.info": "locale",
+  "contact.scheduling": "locale",
 };
 
 // ─── Editor dispatch ───────────────────────────────────────
@@ -183,6 +187,8 @@ function renderEditor(key: string, data: unknown) {
   // Contact
   if (key === "contact.info")
     return <ContactInfoEditor initialData={data as never} />;
+  if (key === "contact.scheduling")
+    return <ContactSchedulingEditor initialData={data as never} />;
 
   // Placeholder for unimplemented editors
   const [sectionId, subsectionId] = key.split(".");
