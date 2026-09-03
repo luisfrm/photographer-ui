@@ -17,6 +17,7 @@ import {
 import { formatTimeLabel } from "@/lib/scheduling/time";
 import WeekStripScheduler from "@/components/scheduling/WeekStripScheduler";
 import MonthCalendarScheduler from "@/components/scheduling/MonthCalendarScheduler";
+import CountryCodeSelect from "@/components/common/CountryCodeSelect";
 import type {
   PublicAvailability,
   SelectedSlot,
@@ -32,6 +33,7 @@ export default function ContactFormWithScheduling() {
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("+1");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,17 +70,23 @@ export default function ContactFormWithScheduling() {
       toast.error("Please enter your name and email.");
       return;
     }
+    if (!phone.trim()) {
+      toast.error("Please enter your phone number.");
+      return;
+    }
     if (schedulerOpen && !selectedSlot) {
       toast.error("Pick a time slot to book your session.");
       return;
     }
+
+    const fullPhone = `${countryCode} ${phone.trim()}`;
 
     if (schedulerOpen && selectedSlot && availability) {
       setIsSubmitting(true);
       const result = await createAppointmentAction({
         name,
         email,
-        phone,
+        phone: fullPhone,
         message,
         date: selectedSlot.date,
         start_time: selectedSlot.start,
@@ -169,16 +177,24 @@ export default function ContactFormWithScheduling() {
           />
         </div>
         <div>
-          <Label htmlFor="phone" className="text-black">
-            Phone <span className="text-gray-400 font-normal">(optional)</span>
+          <Label htmlFor="phone" className="text-black font-medium">
+            Phone <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="phone"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="mt-2"
-          />
+          <div className="flex items-center mt-2">
+            <CountryCodeSelect
+              value={countryCode}
+              onValueChange={setCountryCode}
+            />
+            <Input
+              id="phone"
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="(555) 000-0000"
+              className="rounded-l-none focus-visible:z-10 h-9"
+            />
+          </div>
         </div>
 
         <div>

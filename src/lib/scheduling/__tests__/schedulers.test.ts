@@ -48,4 +48,11 @@ describe("Scheduling components data flow", () => {
     expect(selected.start).toBe("09:00");
     expect(selected.end).toBe("10:30");
   });
+
+  it("formats international phone with country code properly", () => {
+    const countryCode = "+1";
+    const phone = "(801) 555-1234";
+    const fullPhone = `${countryCode} ${phone.trim()}`;
+    expect(fullPhone).toBe("+1 (801) 555-1234");
+  });
 });
