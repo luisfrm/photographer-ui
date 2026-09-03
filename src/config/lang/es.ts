@@ -4,7 +4,6 @@ export const es: SiteContent = {
   nav: [
     { name: "Servicios", href: "/es/services" },
     { name: "Paquetes", href: "/es/services" },
-    { name: "Sobre Nosotros", href: "/es/about" },
     { name: "Contacto", href: "/es/contact" },
   ],
 

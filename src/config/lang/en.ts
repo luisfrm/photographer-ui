@@ -3,7 +3,6 @@ import { SiteContent } from "./types";
 export const en: SiteContent = {
   nav: [
     { name: "Packages", href: "/en/services" },
-    { name: "About Us", href: "/en/about" },
     { name: "Contact", href: "/en/contact" },
   ],
 
