@@ -30,6 +30,12 @@ const emptyLocale = (): CmsContactInfoLocale => ({
   email: "",
   phone: "",
   location: "",
+  emailTitle: "",
+  emailSubtitle: "",
+  phoneTitle: "",
+  phoneSubtitle: "",
+  locationTitle: "",
+  locationSubtitle: "",
   socialLinks: [],
 });
 
@@ -50,6 +56,12 @@ export default function ContactInfoEditor({
         email: l.email ?? "",
         phone: l.phone ?? "",
         location: l.location ?? "",
+        emailTitle: l.emailTitle ?? "",
+        emailSubtitle: l.emailSubtitle ?? "",
+        phoneTitle: l.phoneTitle ?? "",
+        phoneSubtitle: l.phoneSubtitle ?? "",
+        locationTitle: l.locationTitle ?? "",
+        locationSubtitle: l.locationSubtitle ?? "",
         socialLinks: l.socialLinks?.length
           ? l.socialLinks.map((s) => ({
               platform: s.platform ?? "",
@@ -149,6 +161,12 @@ export default function ContactInfoEditor({
       email: current.email,
       phone: current.phone,
       location: current.location,
+      emailTitle: current.emailTitle,
+      emailSubtitle: current.emailSubtitle,
+      phoneTitle: current.phoneTitle,
+      phoneSubtitle: current.phoneSubtitle,
+      locationTitle: current.locationTitle,
+      locationSubtitle: current.locationSubtitle,
       socialLinks: cleanedSocials,
     };
 
@@ -177,10 +195,10 @@ export default function ContactInfoEditor({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-gray-900">Contact Info</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Contact Info & Cards</h2>
         <p className="text-sm text-gray-500">
-          Title, subtitle, contact details, and social media links shown on
-          the contact page and at the end of the home page.
+          Header titles and informative cards (Email, Phone, Location) shown on
+          the home page and contact section.
         </p>
       </div>
 
@@ -212,11 +230,12 @@ export default function ContactInfoEditor({
         </Button>
       </div>
 
-      {/* Title + Subtitle */}
+      {/* Section Header */}
       <div className="p-6 border border-gray-200 rounded-lg bg-white space-y-4">
+        <h3 className="text-sm font-semibold text-gray-900">Section Header</h3>
         <div className="space-y-2">
           <Label htmlFor="contact-title" className="text-gray-700 font-medium">
-            Title
+            Main Title
           </Label>
           <Input
             id="contact-title"
@@ -238,51 +257,148 @@ export default function ContactInfoEditor({
             value={current.subtitle ?? ""}
             onChange={(e) => updateField("subtitle", e.target.value)}
             placeholder="A short introductory paragraph."
-            rows={3}
+            rows={2}
             className="max-w-xl"
           />
         </div>
       </div>
 
-      {/* Contact details */}
-      <div className="p-6 border border-gray-200 rounded-lg bg-white space-y-4">
-        <h3 className="text-sm font-medium text-gray-900">Contact details</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="contact-email" className="text-gray-700">
-              Email
-            </Label>
-            <Input
-              id="contact-email"
-              type="email"
-              value={current.email}
-              onChange={(e) => updateField("email", e.target.value)}
-              placeholder="hello@example.com"
-            />
+      {/* Informative Cards */}
+      <div className="p-6 border border-gray-200 rounded-lg bg-white space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900">
+            Informative Cards (Right Column)
+          </h3>
+          <p className="text-xs text-gray-500 mt-1">
+            Configure the title, descriptive subtitle, and value for each contact card.
+          </p>
+        </div>
+
+        {/* 1. Email Card */}
+        <div className="p-4 rounded-lg bg-gray-50/70 border border-gray-200 space-y-3">
+          <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider">
+            1. Email Card
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="card-email-title" className="text-xs text-gray-600">
+                Card Title
+              </Label>
+              <Input
+                id="card-email-title"
+                value={current.emailTitle ?? ""}
+                onChange={(e) => updateField("emailTitle", e.target.value)}
+                placeholder="e.g., Email"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="contact-email" className="text-xs text-gray-600">
+                Email Address
+              </Label>
+              <Input
+                id="contact-email"
+                type="email"
+                value={current.email}
+                onChange={(e) => updateField("email", e.target.value)}
+                placeholder="hello@example.com"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="contact-phone" className="text-gray-700">
-              Phone
+          <div className="space-y-1">
+            <Label htmlFor="card-email-sub" className="text-xs text-gray-600">
+              Card Subtitle / Description
             </Label>
             <Input
-              id="contact-phone"
-              value={current.phone}
-              onChange={(e) => updateField("phone", e.target.value)}
-              placeholder="+1 555 000 0000"
+              id="card-email-sub"
+              value={current.emailSubtitle ?? ""}
+              onChange={(e) => updateField("emailSubtitle", e.target.value)}
+              placeholder="e.g., Contact us by email, and we will respond shortly."
             />
           </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="contact-location" className="text-gray-700">
-            Location
-          </Label>
-          <Input
-            id="contact-location"
-            value={current.location ?? ""}
-            onChange={(e) => updateField("location", e.target.value)}
-            placeholder="e.g., Utah, US"
-            className="max-w-xl"
-          />
+
+        {/* 2. Phone Card */}
+        <div className="p-4 rounded-lg bg-gray-50/70 border border-gray-200 space-y-3">
+          <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider">
+            2. Phone Card
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="card-phone-title" className="text-xs text-gray-600">
+                Card Title
+              </Label>
+              <Input
+                id="card-phone-title"
+                value={current.phoneTitle ?? ""}
+                onChange={(e) => updateField("phoneTitle", e.target.value)}
+                placeholder="e.g., Phone"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="contact-phone" className="text-xs text-gray-600">
+                Phone Number
+              </Label>
+              <Input
+                id="contact-phone"
+                value={current.phone}
+                onChange={(e) => updateField("phone", e.target.value)}
+                placeholder="+1 555 000 0000"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="card-phone-sub" className="text-xs text-gray-600">
+              Card Subtitle / Description
+            </Label>
+            <Input
+              id="card-phone-sub"
+              value={current.phoneSubtitle ?? ""}
+              onChange={(e) => updateField("phoneSubtitle", e.target.value)}
+              placeholder="e.g., Call us on weekdays after 6pm."
+            />
+          </div>
+        </div>
+
+        {/* 3. Location Card */}
+        <div className="p-4 rounded-lg bg-gray-50/70 border border-gray-200 space-y-3">
+          <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider">
+            3. Location Card
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="card-loc-title" className="text-xs text-gray-600">
+                Card Title
+              </Label>
+              <Input
+                id="card-loc-title"
+                value={current.locationTitle ?? ""}
+                onChange={(e) => updateField("locationTitle", e.target.value)}
+                placeholder="e.g., Location"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="contact-location" className="text-xs text-gray-600">
+                Location / City
+              </Label>
+              <Input
+                id="contact-location"
+                value={current.location ?? ""}
+                onChange={(e) => updateField("location", e.target.value)}
+                placeholder="e.g., Utah, US"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="card-loc-sub" className="text-xs text-gray-600">
+              Card Subtitle / Description
+            </Label>
+            <Input
+              id="card-loc-sub"
+              value={current.locationSubtitle ?? ""}
+              onChange={(e) => updateField("locationSubtitle", e.target.value)}
+              placeholder="e.g., Visit our studio by appointment."
+            />
+          </div>
         </div>
       </div>
 

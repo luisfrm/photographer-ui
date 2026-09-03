@@ -266,6 +266,13 @@ export interface CmsContactInfoLocale {
   /** Full street address. Kept in the CMS schema but not consumed by the UI yet. */
   address?: string;
   mapUrl?: string;
+  /** Informative card labels & descriptions */
+  emailTitle?: string;
+  emailSubtitle?: string;
+  phoneTitle?: string;
+  phoneSubtitle?: string;
+  locationTitle?: string;
+  locationSubtitle?: string;
   socialLinks?: {
     platform: string;
     url: string;
