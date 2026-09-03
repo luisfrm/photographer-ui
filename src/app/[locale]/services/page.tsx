@@ -9,6 +9,7 @@ import {
   getServicesFaq,
 } from "@/app/panel/actions";
 import { getServicesIcon } from "@/lib/cms-icons";
+import HeadlineUnderline from "@/components/common/Headline";
 import type { CmsServicePackage } from "@/types/cms";
 import { PageProps } from "@/types/pages";
 import type { Metadata } from "next";
@@ -116,11 +117,11 @@ export default async function ServicesPage({ params }: Readonly<PageProps>) {
                 const Icon = getServicesIcon(item.icon);
                 return (
                   <div key={index} className="text-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="w-16 h-16 bg-primary/10 text-primary border border-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6 ring-4 ring-primary/5">
                       {Icon ? (
-                        <Icon className="w-8 h-8 text-black" />
+                        <Icon className="w-8 h-8 text-primary" />
                       ) : (
-                        <CheckCircle2 className="w-8 h-8 text-gray-300" />
+                        <CheckCircle2 className="w-8 h-8 text-primary" />
                       )}
                     </div>
                     <h3 className="text-2xl font-serif text-black mb-4">
@@ -153,13 +154,13 @@ export default async function ServicesPage({ params }: Readonly<PageProps>) {
             <div className="grid md:grid-cols-4 gap-8">
               {processLocale.steps.map((step, index) => (
                 <div key={index} className="text-center">
-                  <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                  <div className="w-12 h-12 bg-primary/15 text-primary border border-primary/30 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold ring-4 ring-primary/5">
                     {step.number}
                   </div>
                   <h3 className="text-xl font-semibold text-black mb-3">
                     {step.title}
                   </h3>
-                  <p className="text-gray-600">{step.description}</p>
+                  <p className="text-gray-600 leading-relaxed">{step.description}</p>
                 </div>
               ))}
             </div>
@@ -169,18 +170,20 @@ export default async function ServicesPage({ params }: Readonly<PageProps>) {
 
       {/* FAQ */}
       {hasFaq && (
-        <section className="py-20 bg-white">
+        <section className="py-24 bg-white">
           <div className="container mx-auto px-6">
-            <h2 className="text-5xl font-serif text-black text-center mb-4">
-              {faqLocale.title}
-            </h2>
-            {faqLocale.subtitle && (
-              <p className="text-center text-gray-600 mb-16 max-w-2xl mx-auto">
-                {faqLocale.subtitle}
-              </p>
-            )}
+            <div className="text-center mb-16 sm:mb-20">
+              <h2 className="text-5xl font-serif text-black mb-4">
+                {faqLocale.title}
+              </h2>
+              {faqLocale.subtitle && (
+                <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+                  {faqLocale.subtitle}
+                </p>
+              )}
+            </div>
 
-            <div className="max-w-4xl mx-auto space-y-8">
+            <div className="max-w-4xl mx-auto space-y-8 pt-2">
               {faqLocale.items.map((item, index) => {
                 const isLast = index === faqLocale.items.length - 1;
                 return (
@@ -189,13 +192,14 @@ export default async function ServicesPage({ params }: Readonly<PageProps>) {
                     className={
                       isLast
                         ? "pb-6"
-                        : "border-b border-gray-200 pb-6"
+                        : "border-b border-primary/15 pb-6"
                     }
                   >
-                    <h3 className="text-xl font-semibold text-black mb-3">
+                    <h3 className="text-xl font-semibold text-black mb-2.5">
                       {item.question}
                     </h3>
-                    <p className="text-gray-600">{item.answer}</p>
+                    <HeadlineUnderline id={`faq-headline-${index}`} className="mb-3" />
+                    <p className="text-gray-600 leading-relaxed">{item.answer}</p>
                   </div>
                 );
               })}
@@ -205,24 +209,30 @@ export default async function ServicesPage({ params }: Readonly<PageProps>) {
       )}
 
       {/* CTA Section */}
-      <section className="py-20 bg-black text-white">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-serif mb-6">
-            {locale === "es"
-              ? "¿Listo para reservar tu sesión?"
-              : "Ready to Book Your Session?"}
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            {locale === "es"
-              ? "Creemos algo hermoso juntos. Contáctanos para hablar de tu visión y agendar tu sesión."
-              : "Let's create something beautiful together. Contact us to discuss your vision and schedule your professional photography session."}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="outline" asChild>
-              <Link href={`/${locale}/contact`}>
-                {locale === "es" ? "Contáctanos" : "Get In Touch"}
-              </Link>
-            </Button>
+      <section className="py-20 bg-gray-50/50">
+        <div className="container mx-auto px-6">
+          <div className="rounded-3xl bg-linear-to-br from-primary/12 via-white to-primary/8 border border-primary/25 p-10 sm:p-16 text-center max-w-5xl mx-auto shadow-sm">
+            <h2 className="text-4xl sm:text-5xl font-serif text-black mb-6">
+              {locale === "es"
+                ? "¿Listo para reservar tu sesión?"
+                : "Ready to Book Your Session?"}
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+              {locale === "es"
+                ? "Creemos algo hermoso juntos. Contáctanos para hablar de tu visión y agendar tu sesión."
+                : "Let's create something beautiful together. Contact us to discuss your vision and schedule your professional photography session."}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-2xl py-6 px-8 text-base shadow-sm hover:shadow-md transition-all"
+                asChild
+              >
+                <Link href={`/${locale}/contact`}>
+                  {locale === "es" ? "Contáctanos" : "Get In Touch"}
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -243,13 +253,13 @@ function PackageCard({
     <div
       className={
         pkg.popular
-          ? "bg-white rounded-lg p-8 shadow-lg border-2 border-black relative"
-          : "bg-white rounded-lg p-8 shadow-lg"
+          ? "bg-white rounded-2xl p-8 shadow-md border-2 border-primary/60 relative"
+          : "bg-white rounded-2xl p-8 shadow-sm border border-gray-200/80"
       }
     >
       {pkg.popular && (
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <span className="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold">
+        <div className="absolute -top-3.5 left-1/2 transform -translate-x-1/2">
+          <span className="bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-xs">
             {locale === "es" ? "Más Popular" : "Most Popular"}
           </span>
         </div>
@@ -264,7 +274,7 @@ function PackageCard({
         <div className="space-y-4 mb-8">
           {pkg.features.map((feature, index) => (
             <div key={index} className="flex items-center">
-              <Check className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
+              <Check className="w-5 h-5 text-primary mr-3 shrink-0" />
               <span className="text-gray-700">{feature}</span>
             </div>
           ))}
