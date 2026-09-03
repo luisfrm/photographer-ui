@@ -14,10 +14,32 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   deleteAppointmentAction,
+  syncAppointmentAction,
   updateAppointmentStatusAction,
 } from "@/app/panel/actions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { formatTimeLabel } from "@/lib/scheduling/time";
 import type { Appointment, AppointmentStatus } from "@/types/scheduling";
+
+export interface StatusOption {
+  value: AppointmentStatus;
+  label: string;
+  dotClass: string;
+}
+
+export const STATUS_OPTIONS: StatusOption[] = [
+  { value: "pending", label: "Pending", dotClass: "bg-amber-500" },
+  { value: "confirmed", label: "Confirmed", dotClass: "bg-emerald-500" },
+  { value: "completed", label: "Completed", dotClass: "bg-blue-500" },
+  { value: "cancelled", label: "Cancelled", dotClass: "bg-zinc-400" },
+];
 
 export const STATUS_LABELS: Record<AppointmentStatus, string> = {
   pending: "Pending",
@@ -49,6 +71,22 @@ export default function AppointmentDetailSheet({
   );
   const [isSavingStatus, setIsSavingStatus] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
+
+  const handleSyncGoogle = async () => {
+    if (!appointment) return;
+    setIsSyncingGoogle(true);
+    const result = await syncAppointmentAction(appointment.id);
+    if (result.error) {
+      toast.error(`Sync failed: ${result.error}`);
+    } else {
+      toast.success("Appointment synced to Google Calendar!");
+      if (result.googleEventId) {
+        onChanged({ ...appointment, google_event_id: result.googleEventId });
+      }
+    }
+    setIsSyncingGoogle(false);
+  };
 
   const handleSaveStatus = async () => {
     if (!appointment || status === appointment.status) return;
@@ -116,11 +154,27 @@ export default function AppointmentDetailSheet({
                 >
                   {STATUS_LABELS[appointment.status]}
                 </span>
-                {appointment.google_event_id && (
+                {appointment.google_event_id ? (
                   <span className="inline-flex items-center gap-1.5 text-xs text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Synced to Google Calendar
                   </span>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isSyncingGoogle}
+                    onClick={handleSyncGoogle}
+                    className="h-7 text-xs px-2.5"
+                  >
+                    {isSyncingGoogle ? (
+                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
+                    )}
+                    Sync to Google Calendar
+                  </Button>
                 )}
               </div>
 
@@ -182,28 +236,43 @@ export default function AppointmentDetailSheet({
                   Status
                 </label>
                 <div className="flex items-center gap-2">
-                  <select
-                    id="appointment-status"
+                  <Select
                     value={status}
-                    onChange={(e) =>
-                      setStatus(e.target.value as AppointmentStatus)
-                    }
-                    className="h-10 flex-1 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                    onValueChange={(val) => setStatus(val as AppointmentStatus)}
                   >
-                    {(Object.keys(STATUS_LABELS) as AppointmentStatus[]).map(
-                      (s) => (
-                        <option key={s} value={s}>
-                          {STATUS_LABELS[s]}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    <SelectTrigger
+                      id="appointment-status"
+                      className="h-10 flex-1 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus-visible:ring-primary/40 focus-visible:border-primary"
+                    >
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_OPTIONS.map((opt) => (
+                        <SelectItem
+                          key={opt.value}
+                          value={opt.value}
+                          className="cursor-pointer"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                "size-2 rounded-full",
+                                opt.dotClass
+                              )}
+                            />
+                            <span>{opt.label}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Button
                     size="sm"
                     onClick={handleSaveStatus}
                     disabled={
                       isSavingStatus || status === appointment.status
                     }
+                    className="h-10 px-4"
                   >
                     {isSavingStatus && (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -1440,6 +1440,57 @@ async function syncAppointmentToGoogle(
   return id;
 }
 
+/** Manually sync an existing appointment to Google Calendar (panel only). */
+export async function syncAppointmentAction(
+  appointmentId: string
+): Promise<{ success: boolean; googleEventId: string | null; error: string | null }> {
+  try {
+    const user = await getAuthUser();
+    if (!user) return { success: false, googleEventId: null, error: "Unauthorized" };
+
+    const service = createServiceClient();
+    const { data: rawAppointment, error: fetchErr } = await service
+      .from("appointments")
+      .select("*")
+      .eq("id", appointmentId)
+      .single();
+
+    if (fetchErr || !rawAppointment) {
+      return {
+        success: false,
+        googleEventId: null,
+        error: fetchErr?.message || "Appointment not found",
+      };
+    }
+
+    const appointment: Appointment = {
+      ...(rawAppointment as Appointment),
+      start_time: normalizeTime((rawAppointment as Appointment).start_time),
+      end_time: normalizeTime((rawAppointment as Appointment).end_time),
+    };
+
+    const eventId = await syncAppointmentToGoogle(appointment);
+    if (!eventId) {
+      return {
+        success: false,
+        googleEventId: null,
+        error: "Google Calendar is not connected or could not create event.",
+      };
+    }
+
+    await service
+      .from("appointments")
+      .update({ google_event_id: eventId, updated_at: new Date().toISOString() })
+      .eq("id", appointment.id);
+
+    return { success: true, googleEventId: eventId, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to sync to Google Calendar";
+    return { success: false, googleEventId: null, error: message };
+  }
+}
+
 /** Update an appointment's status from the panel. */
 export async function updateAppointmentStatusAction(
   id: string,
