@@ -420,9 +420,9 @@ export default function ContactFormWithScheduling({
                 : "max-h-0 opacity-0"
             }`}
           >
-            <div className="border border-zinc-200 rounded-xl p-4 sm:p-6 bg-white shadow-xs">
+            <div className="border border-primary/40 dark:border-primary/30 rounded-xl p-4 sm:p-6 bg-white shadow-xs">
               {/* Top bar with View Switcher */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-zinc-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-primary/10">
                 <div className="flex items-center space-x-2">
                   <CalendarDays className="h-4 w-4 text-primary" />
                   <h4 className="text-base font-semibold text-zinc-900">
@@ -431,7 +431,7 @@ export default function ContactFormWithScheduling({
                 </div>
 
                 {/* View switcher */}
-                <div className="inline-flex rounded-lg bg-zinc-100 p-1 text-xs font-medium self-start sm:self-auto">
+                <div className="inline-flex rounded-lg bg-primary/10 border border-primary/20 p-1 text-xs font-medium self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setViewMode("strip")}
@@ -439,7 +439,7 @@ export default function ContactFormWithScheduling({
                       "px-3 py-1 rounded-md transition-all",
                       viewMode === "strip"
                         ? "bg-white text-zinc-900 shadow-xs font-semibold"
-                        : "text-zinc-500 hover:text-zinc-900"
+                        : "text-zinc-600 hover:text-primary"
                     )}
                   >
                     {t.viewStrip}
@@ -451,7 +451,7 @@ export default function ContactFormWithScheduling({
                       "px-3 py-1 rounded-md transition-all",
                       viewMode === "calendar"
                         ? "bg-white text-zinc-900 shadow-xs font-semibold"
-                        : "text-zinc-500 hover:text-zinc-900"
+                        : "text-zinc-600 hover:text-primary"
                     )}
                   >
                     {t.viewCalendar}

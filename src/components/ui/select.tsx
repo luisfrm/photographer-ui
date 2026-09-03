@@ -26,12 +26,12 @@ function SelectValue({
 }
 
 export const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-2xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>span]:line-clamp-1",
+  "flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-2xs outline-none transition-[color,box-shadow] focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>span]:line-clamp-1",
   {
     variants: {
       variant: {
         default:
-          "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50/70 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100",
+          "border-primary/50 hover:border-primary/80 dark:border-primary/40 bg-white text-zinc-900 hover:bg-zinc-50/70 dark:bg-zinc-900 dark:text-zinc-100",
         subtle:
           "border-transparent bg-zinc-100 text-zinc-800 hover:bg-zinc-200/70 dark:bg-zinc-800 dark:text-zinc-200",
         outline:
