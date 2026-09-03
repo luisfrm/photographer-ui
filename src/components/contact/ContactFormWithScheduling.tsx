@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { format } from "date-fns";
 import { es as esLocale, enUS as enLocale } from "date-fns/locale";
 import { CheckCircle2, Loader2, CalendarDays } from "lucide-react";
@@ -52,6 +53,9 @@ const TRANSLATIONS = {
     selectedLabel: "Selected:",
     changeSlot: "Change",
     phonePlaceholder: "(555) 000-0000",
+    termsPrefix: "I have read and agree to the ",
+    termsLink: "Terms & Conditions",
+    errTerms: "Please accept the Terms and Conditions before proceeding.",
   },
   es: {
     nameLabel: "Nombre completo",
@@ -80,6 +84,9 @@ const TRANSLATIONS = {
     selectedLabel: "Seleccionado:",
     changeSlot: "Cambiar",
     phonePlaceholder: "(555) 000-0000",
+    termsPrefix: "He leído y acepto los ",
+    termsLink: "Términos y Condiciones",
+    errTerms: "Por favor acepta los Términos y Condiciones para continuar.",
   },
 };
 
@@ -248,6 +255,7 @@ export default function ContactFormWithScheduling({
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [bookedSlot, setBookedSlot] = useState<SelectedSlot | null>(null);
 
   useEffect(() => {
@@ -285,6 +293,11 @@ export default function ContactFormWithScheduling({
     }
     if (schedulerOpen && !selectedSlot) {
       toast.error(t.errPickSlot);
+      return;
+    }
+
+    if (!agreedToTerms) {
+      toast.error(t.errTerms);
       return;
     }
 
@@ -328,6 +341,7 @@ export default function ContactFormWithScheduling({
     setPhone("");
     setMessage("");
     setShowScheduling(false);
+    setAgreedToTerms(false);
   };
 
   if (bookedSlot) {
@@ -492,7 +506,39 @@ export default function ContactFormWithScheduling({
             className="mt-2 bg-white"
           />
         </div>
-        <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto">
+        {/* Terms and conditions agreement checkbox */}
+        <div className="flex items-start space-x-3 pt-1">
+          <Checkbox
+            id="terms"
+            checked={agreedToTerms}
+            onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+            className="mt-0.5"
+            required
+          />
+          <Label
+            htmlFor="terms"
+            className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer select-none leading-relaxed"
+          >
+            {t.termsPrefix}
+            <Link
+              href={`/${locale}/terms-and-conditions`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium underline-offset-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {t.termsLink}
+            </Link>
+            .
+          </Label>
+        </div>
+
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isSubmitting || !agreedToTerms}
+          className="w-full sm:w-auto"
+        >
           {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
           {schedulerOpen ? t.bookBtn : t.sendBtn}
         </Button>
