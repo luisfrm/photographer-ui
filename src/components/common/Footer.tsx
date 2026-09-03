@@ -52,7 +52,7 @@ export default async function Footer({ locale }: FooterProps) {
     locale === "es" ? "Todos los derechos reservados." : "All rights reserved.";
 
   return (
-    <footer className="bg-zinc-900 text-zinc-100">
+    <footer className="bg-zinc-900 text-zinc-100 border-t border-primary/15">
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand */}
@@ -78,25 +78,25 @@ export default async function Footer({ locale }: FooterProps) {
 
           {/* Contact */}
           <div>
-            <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium mb-5">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-400 font-medium mb-5">
               {locale === "es" ? "Contacto" : "Contact"}
             </h3>
             <div className="space-y-3">
               {info.email && (
                 <Link
                   href={`mailto:${info.email}`}
-                  className="flex items-center gap-3 text-zinc-400 hover:text-white transition-colors group"
+                  className="flex items-center gap-3 text-zinc-400 hover:text-primary transition-colors group"
                 >
-                  <Mail className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
+                  <Mail className="h-4 w-4 text-primary transition-colors" />
                   <span className="text-sm">{info.email}</span>
                 </Link>
               )}
               {info.phone && (
                 <Link
                   href={`tel:${info.phone.replace(/\s/g, "")}`}
-                  className="flex items-center gap-3 text-zinc-400 hover:text-white transition-colors group"
+                  className="flex items-center gap-3 text-zinc-400 hover:text-primary transition-colors group"
                 >
-                  <Phone className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
+                  <Phone className="h-4 w-4 text-primary transition-colors" />
                   <span className="text-sm">{info.phone}</span>
                 </Link>
               )}
@@ -106,10 +106,10 @@ export default async function Footer({ locale }: FooterProps) {
           {/* Follow */}
           {info.socialLinks && info.socialLinks.length > 0 && (
             <div>
-              <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium mb-5">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-400 font-medium mb-5">
                 {locale === "es" ? "Sígueme" : "Follow"}
               </h3>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {info.socialLinks.map((link, index) => {
                   const Icon = getSocialIcon(link.platform);
                   return (
@@ -118,10 +118,10 @@ export default async function Footer({ locale }: FooterProps) {
                       href={link.url || "#"}
                       target={link.url ? "_blank" : undefined}
                       rel={link.url ? "noopener noreferrer" : undefined}
-                      className="text-zinc-400 hover:text-white hover:scale-110 transition-all"
+                      className="p-2.5 rounded-xl bg-primary/15 text-primary hover:bg-primary hover:text-primary-foreground hover:scale-110 transition-all shadow-2xs"
                       aria-label={link.platform || "Social link"}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-4 w-4" />
                     </Link>
                   );
                 })}
@@ -131,17 +131,17 @@ export default async function Footer({ locale }: FooterProps) {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-zinc-800 mt-16 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-zinc-500 text-center sm:text-left">
-            © {year} {brand.title}. {rightsText}
+        <div className="border-t border-primary/15 mt-16 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-zinc-400 text-center sm:text-left">
+            © {year} <span className="text-primary font-medium">{brand.title}</span>. {rightsText}
           </p>
-          <p className="text-sm text-zinc-500 text-center sm:text-right">
+          <p className="text-sm text-zinc-400 text-center sm:text-right">
             {locale === "es" ? "Desarrollado por" : "Developed by"}{" "}
             <Link
               href="https://luisrivas.site"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-300 hover:text-white font-medium transition-colors"
+              className="text-primary hover:text-primary/80 font-semibold underline-offset-4 hover:underline transition-colors"
             >
               Luis Rivas
             </Link>
