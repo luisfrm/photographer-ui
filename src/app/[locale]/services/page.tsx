@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Check, CheckCircle2 } from "lucide-react";
+import { Check, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getServicesMeta,
@@ -31,7 +31,7 @@ export async function generateMetadata({
 
 // ─── Page ──────────────────────────────────────────────────
 
-export default async function ServicesPage({ params }: PageProps) {
+export default async function ServicesPage({ params }: Readonly<PageProps>) {
   const { locale } = await params;
   const [meta, packages, included, process, faq] = await Promise.all([
     getServicesMeta(),
@@ -223,11 +223,6 @@ export default async function ServicesPage({ params }: PageProps) {
                 {locale === "es" ? "Contáctanos" : "Get In Touch"}
               </Link>
             </Button>
-            <Button size="lg" asChild>
-              <Link href={`/${locale}/gallery`}>
-                {locale === "es" ? "Ver Portafolio" : "View Portfolio"}
-              </Link>
-            </Button>
           </div>
         </div>
       </section>
@@ -240,10 +235,10 @@ export default async function ServicesPage({ params }: PageProps) {
 function PackageCard({
   pkg,
   locale,
-}: {
+}: Readonly<{
   pkg: CmsServicePackage;
   locale: "en" | "es";
-}) {
+}>) {
   return (
     <div
       className={
