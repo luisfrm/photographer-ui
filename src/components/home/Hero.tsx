@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getHeroContent } from "@/app/panel/actions";
 import { getR2KeyUrl } from "@/lib/r2/url";
+import { withLocalePrefix } from "@/lib/i18n";
 import type { Locale } from "@/types/cms";
 
 type HeroProps = {
@@ -55,7 +56,10 @@ export default async function Hero({ locale }: HeroProps) {
           <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-2">
             <Button asChild size="lg">
               <Link
-                href={localeContent.ctaUrl || `/${locale}/contact`}
+                href={withLocalePrefix(
+                  locale,
+                  localeContent.ctaUrl || `/${locale}/contact`
+                )}
                 {...(localeContent.ctaNewTab
                   ? { target: "_blank", rel: "noopener noreferrer" }
                   : {})}
