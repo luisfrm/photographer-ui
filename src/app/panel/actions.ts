@@ -31,6 +31,27 @@ import type {
   CmsSectionKey,
   Locale,
 } from "@/types/cms";
+import type {
+  Appointment,
+  AppointmentStatus,
+  GoogleTokens,
+  NewAppointmentInput,
+  PanelSettings,
+  PublicAvailability,
+  WorkDaySchedule,
+} from "@/types/scheduling";
+import { DEFAULT_TIMEZONE, DEFAULT_SESSION_DURATION } from "@/types/scheduling";
+import { isRangeValid, normalizeTime } from "@/lib/scheduling/time";
+import { validateTimesSeparation } from "@/lib/scheduling/validation";
+import { buildAvailability } from "@/lib/scheduling/slots";
+import { isValidTimezone } from "@/lib/scheduling/constants";
+import {
+  buildEventPayload,
+  createCalendarEvent,
+  isTokenExpired,
+  refreshAccessToken,
+} from "@/lib/scheduling/google";
+import { createServiceClient } from "@/lib/supabase/service";
 
 // ─── Auth Types ─────────────────────────────────────────────
 
@@ -952,4 +973,509 @@ export async function saveGeneralLogo(
   }
 
   return { success: true, error: null };
+}
+
+// ─── Scheduling: Settings ───────────────────────────────────
+
+const SETTINGS_DEFAULTS: PanelSettings = {
+  workHours: [],
+  timezone: DEFAULT_TIMEZONE,
+  sessionDuration: DEFAULT_SESSION_DURATION,
+};
+
+async function getAuthUser() {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  return error || !user ? null : user;
+}
+
+/** Normalize + validate work hours submitted by the settings editor. */
+function normalizeWorkHours(input: WorkDaySchedule[]): WorkDaySchedule[] {
+  const seen = new Set<string>();
+  const workHours: WorkDaySchedule[] = [];
+  for (const day of input) {
+    if (!day?.day || seen.has(day.day)) continue;
+    const ranges = (day.ranges ?? []).filter((r) => isRangeValid(r));
+    if (ranges.length === 0) continue; // day is off
+    seen.add(day.day);
+    workHours.push({ day: day.day, ranges });
+  }
+  return workHours;
+}
+
+/** Load the current user's scheduling settings (panel only). */
+export async function getSettingsAction(): Promise<{
+  data: PanelSettings;
+  error: string | null;
+}> {
+  try {
+    const user = await getAuthUser();
+    if (!user) {
+      return { data: SETTINGS_DEFAULTS, error: "Unauthorized" };
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data, error } = await supabase
+      .from("settings")
+      .select("work_hours, timezone, session_duration")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      return { data: SETTINGS_DEFAULTS, error: error.message };
+    }
+
+    if (!data) {
+      return { data: SETTINGS_DEFAULTS, error: null };
+    }
+
+    const workHours = Array.isArray(data.work_hours)
+      ? normalizeWorkHours(data.work_hours as WorkDaySchedule[])
+      : [];
+    const timezone =
+      typeof data.timezone === "string" && data.timezone
+        ? data.timezone
+        : DEFAULT_TIMEZONE;
+    const sessionDuration =
+      typeof data.session_duration === "number" && data.session_duration > 0
+        ? data.session_duration
+        : DEFAULT_SESSION_DURATION;
+
+    return { data: { workHours, timezone, sessionDuration }, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to load settings";
+    return { data: SETTINGS_DEFAULTS, error: message };
+  }
+}
+
+/** Save work hours + timezone (upsert per user). */
+export async function saveSettingsAction(input: {
+  workHours: WorkDaySchedule[];
+  timezone: string;
+  sessionDuration?: number;
+}): Promise<{ success: boolean; error: string | null }> {
+  try {
+    const user = await getAuthUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const timezone = input.timezone || DEFAULT_TIMEZONE;
+    if (!isValidTimezone(timezone)) {
+      return { success: false, error: `Invalid timezone: ${timezone}` };
+    }
+
+    const sessionDuration =
+      typeof input.sessionDuration === "number" && input.sessionDuration > 0
+        ? input.sessionDuration
+        : DEFAULT_SESSION_DURATION;
+
+    // Validate minimum time separation for each day's times
+    for (const day of input.workHours ?? []) {
+      const times = (day.ranges ?? []).map((r) => r.start);
+      const conflict = validateTimesSeparation(
+        day.day,
+        day.day,
+        times,
+        sessionDuration
+      );
+      if (conflict) {
+        return { success: false, error: conflict.message };
+      }
+    }
+
+    const workHours = normalizeWorkHours(input.workHours ?? []);
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { error } = await supabase.from("settings").upsert(
+      {
+        user_id: user.id,
+        work_hours: workHours,
+        timezone,
+        session_duration: sessionDuration,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to save settings";
+    return { success: false, error: message };
+  }
+}
+
+/** Whether the current user has Google Calendar connected (panel only). */
+export async function getGoogleConnectionAction(): Promise<{
+  connected: boolean;
+  email: string | null;
+}> {
+  try {
+    const user = await getAuthUser();
+    if (!user) return { connected: false, email: null };
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data } = await supabase
+      .from("settings")
+      .select("google_tokens")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const tokens = data?.google_tokens as GoogleTokens | null;
+    return {
+      connected: Boolean(tokens?.access_token),
+      email: tokens?.email ?? null,
+    };
+  } catch {
+    return { connected: false, email: null };
+  }
+}
+
+/** Disconnect Google Calendar for the current user. */
+export async function disconnectGoogleAction(): Promise<{
+  success: boolean;
+  error: string | null;
+}> {
+  try {
+    const user = await getAuthUser();
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { error } = await supabase
+      .from("settings")
+      .update({ google_tokens: null, updated_at: new Date().toISOString() })
+      .eq("user_id", user.id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to disconnect Google";
+    return { success: false, error: message };
+  }
+}
+
+// ─── Scheduling: Public availability (contact page) ─────────
+
+/**
+ * Available slots for the next 14 days.
+ *
+ * Preferred path: computed in JS from `settings` + `appointments` with the
+ * service-role client (no dependency on the DB RPC / PostgREST schema cache).
+ * Falls back to the `get_available_slots` security-definer RPC when the
+ * service key isn't configured.
+ */
+export async function getAvailableSlotsAction(): Promise<{
+  data: PublicAvailability | null;
+  error: string | null;
+}> {
+  try {
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const result = await getAvailabilityWithServiceClient();
+      if (!result.error && result.data) return result;
+      console.error(
+        "Service-client availability failed, falling back to RPC:",
+        result.error
+      );
+    }
+
+    // Fallback: security-definer RPC (public, anon-safe).
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data, error } = await supabase.rpc("get_available_slots", {
+      p_days: 14,
+    });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data: data as PublicAvailability, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to load availability";
+    return { data: null, error: message };
+  }
+}
+
+/**
+ * Compute availability in JS (unit-tested logic in @/lib/scheduling) using
+ * the service-role client so RLS on `settings`/`appointments` doesn't block
+ * anonymous visitors.
+ */
+async function getAvailabilityWithServiceClient(): Promise<{
+  data: PublicAvailability | null;
+  error: string | null;
+}> {
+  const service = createServiceClient();
+
+  const [
+    { data: settings, error: settingsError },
+    { data: appointments, error: appointmentsError },
+  ] = await Promise.all([
+    service
+      .from("settings")
+      .select("work_hours, timezone")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+    service.from("appointments").select("date, start_time, status"),
+  ]);
+
+  if (settingsError) return { data: null, error: settingsError.message };
+  if (appointmentsError) {
+    return { data: null, error: appointmentsError.message };
+  }
+
+  const workHours: WorkDaySchedule[] = Array.isArray(settings?.work_hours)
+    ? (settings.work_hours as WorkDaySchedule[])
+    : [];
+  const timezone =
+    typeof settings?.timezone === "string" && settings.timezone
+      ? settings.timezone
+      : DEFAULT_TIMEZONE;
+
+  const booked = ((appointments ?? []) as {
+    date: string;
+    start_time: string;
+    status: AppointmentStatus;
+  }[]).map((appointment) => ({
+    date: appointment.date,
+    start_time: normalizeTime(appointment.start_time),
+    status: appointment.status,
+  }));
+
+  const days = buildAvailability(workHours, timezone, new Date(), 14, booked);
+  return { data: { timezone, days }, error: null };
+}
+
+// ─── Scheduling: Appointments ───────────────────────────────
+
+/** All appointments for the panel calendar (authenticated). */
+export async function getAppointmentsAction(): Promise<{
+  data: Appointment[] | null;
+  error: string | null;
+}> {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("*")
+      .order("date", { ascending: true })
+      .order("start_time", { ascending: true });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    const appointments = ((data as Appointment[]) ?? []).map((appointment) => ({
+      ...appointment,
+      start_time: normalizeTime(appointment.start_time),
+      end_time: normalizeTime(appointment.end_time),
+    }));
+
+    return { data: appointments, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to load appointments";
+    return { data: null, error: message };
+  }
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+/**
+ * Create a booking from the public contact page.
+ * Re-checks availability, then (best-effort) syncs to Google Calendar
+ * when the owner has it connected.
+ */
+export async function createAppointmentAction(
+  input: NewAppointmentInput
+): Promise<{ data: Appointment | null; error: string | null }> {
+  try {
+    const { name, email, date, start_time, end_time, timezone } = input;
+
+    if (!name?.trim() || !email?.trim()) {
+      return { data: null, error: "Name and email are required" };
+    }
+    if (!isValidEmail(email.trim())) {
+      return { data: null, error: "Please enter a valid email address" };
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return { data: null, error: "Invalid booking date" };
+    }
+    if (!isRangeValid({ start: start_time, end: end_time })) {
+      return { data: null, error: "Invalid time range" };
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const { data, error } = await supabase
+      .from("appointments")
+      .insert({
+        name: name.trim(),
+        email: email.trim(),
+        phone: input.phone?.trim() || null,
+        message: input.message?.trim() || null,
+        date,
+        start_time,
+        end_time,
+        timezone,
+        status: "pending",
+      })
+      .select("*")
+      .single();
+
+    if (error || !data) {
+      // 23505 = unique_violation — enforced by the partial unique index on
+      // (date, start_time) for non-cancelled rows.
+      if (error?.code === "23505") {
+        return {
+          data: null,
+          error: "That time slot was just taken. Please pick another one.",
+        };
+      }
+      return { data: null, error: error?.message ?? "Failed to book session" };
+    }
+
+    const appointment = {
+      ...(data as Appointment),
+      start_time: normalizeTime((data as Appointment).start_time),
+      end_time: normalizeTime((data as Appointment).end_time),
+    };
+
+    // Best-effort Google Calendar sync — never fails the booking itself.
+    try {
+      const eventId = await syncAppointmentToGoogle(appointment);
+      if (eventId) {
+        await supabase
+          .from("appointments")
+          .update({ google_event_id: eventId, updated_at: new Date().toISOString() })
+          .eq("id", appointment.id);
+        appointment.google_event_id = eventId;
+      }
+    } catch (err) {
+      console.error("Google Calendar sync failed:", err);
+    }
+
+    return { data: appointment, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to book session";
+    return { data: null, error: message };
+  }
+}
+
+/**
+ * Push an appointment to the owner's Google Calendar (service-role client
+ * so the anon booking flow can read the private OAuth tokens).
+ */
+async function syncAppointmentToGoogle(
+  appointment: Appointment
+): Promise<string | null> {
+  const service = createServiceClient();
+
+  const { data } = await service
+    .from("settings")
+    .select("user_id, google_tokens")
+    .limit(1)
+    .maybeSingle();
+
+  if (!data) return null;
+  const tokens = data.google_tokens as GoogleTokens | null;
+  if (!tokens?.access_token) return null;
+
+  let accessToken = tokens.access_token;
+  if (isTokenExpired(tokens)) {
+    if (!tokens.refresh_token) return null;
+    const refreshed = await refreshAccessToken(tokens.refresh_token);
+    accessToken = refreshed.access_token;
+    // Persist refreshed tokens best-effort.
+    await service
+      .from("settings")
+      .update({ google_tokens: refreshed, updated_at: new Date().toISOString() })
+      .eq("user_id", data.user_id);
+  }
+
+  const payload = buildEventPayload({
+    summary: `Photo session — ${appointment.name}`,
+    description: appointment.message ?? undefined,
+    startDateTime: `${appointment.date}T${appointment.start_time}:00`,
+    endDateTime: `${appointment.date}T${appointment.end_time}:00`,
+    timeZone: appointment.timezone,
+    attendeeEmail: appointment.email,
+  });
+
+  const { id } = await createCalendarEvent(accessToken, payload);
+  return id;
+}
+
+/** Update an appointment's status from the panel. */
+export async function updateAppointmentStatusAction(
+  id: string,
+  status: AppointmentStatus
+): Promise<{ success: boolean; error: string | null }> {
+  try {
+    const valid = ["pending", "confirmed", "completed", "cancelled"];
+    if (!valid.includes(status)) {
+      return { success: false, error: "Invalid status" };
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to update appointment";
+    return { success: false, error: message };
+  }
+}
+
+/** Delete an appointment from the panel. */
+export async function deleteAppointmentAction(
+  id: string
+): Promise<{ success: boolean; error: string | null }> {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { error } = await supabase.from("appointments").delete().eq("id", id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true, error: null };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to delete appointment";
+    return { success: false, error: message };
+  }
 }
