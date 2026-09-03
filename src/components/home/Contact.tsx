@@ -5,7 +5,6 @@ import {
   Phone,
   MapPin,
   ArrowRight,
-  Sparkles,
   Link2,
   Instagram,
   Facebook,
@@ -138,20 +137,11 @@ export default async function Contact({ locale }: Readonly<ContactProps>) {
   return (
     <PageSection
       id="contact"
-      className="relative bg-linear-to-b from-stone-50/70 via-primary/[0.04] to-stone-50/90 dark:from-zinc-950 dark:via-zinc-900/60 dark:to-zinc-950 border-t border-primary/15 overflow-hidden"
+      className="bg-gray-100 dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800"
     >
-      {/* Decorative warm ambient lights */}
-      <div className="absolute top-10 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-10 left-10 w-80 h-80 bg-accent/20 rounded-full blur-3xl pointer-events-none -z-10" />
-
-      <div className="space-y-12 relative z-10">
+      <div className="space-y-12">
         {/* Section Header */}
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/15 text-primary text-xs font-semibold uppercase tracking-wider mb-4 border border-primary/25">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{isEs ? "Ponte en contacto" : "Get in touch"}</span>
-          </div>
-
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-black dark:text-white tracking-tight leading-tight">
             {info.title}
           </h2>
@@ -166,7 +156,7 @@ export default async function Contact({ locale }: Readonly<ContactProps>) {
         {/* 50/50 Layout: Schedule Card (Left) / 3 Informative Cards (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-stretch">
           {/* ─── LEFT COLUMN: Schedule Hours Card (w-1/2) ─────────── */}
-          <div className="bg-white dark:bg-zinc-800/95 rounded-3xl p-7 sm:p-9 border border-primary/20 dark:border-zinc-700/80 shadow-md flex flex-col justify-between relative">
+          <div className="bg-white dark:bg-zinc-800/95 rounded-3xl p-7 sm:p-9 border border-gray-200 dark:border-zinc-700/80 shadow-xs flex flex-col justify-between">
             <div>
               {/* Card Header */}
               <div className="flex items-center justify-between pb-5 mb-6 border-b border-primary/10 dark:border-zinc-700/60">
@@ -241,8 +231,8 @@ export default async function Contact({ locale }: Readonly<ContactProps>) {
           {/* ─── RIGHT COLUMN: 3 Informative Cards (w-1/2) ────────── */}
           <div className="flex flex-col justify-between gap-4 sm:gap-5">
             {/* Card 1: Email */}
-            <div className="bg-white dark:bg-zinc-800/95 rounded-2xl p-6 border border-gray-200/80 dark:border-zinc-700/70 hover:border-primary/50 shadow-xs hover:shadow-sm transition-all flex items-start gap-4 sm:gap-5 group">
-              <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 ring-4 ring-primary/5">
+            <div className="bg-white dark:bg-zinc-800/95 rounded-2xl p-6 border border-gray-200/80 dark:border-zinc-700/70 shadow-xs flex items-start gap-4 sm:gap-5">
+              <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 ring-4 ring-primary/5">
                 <Mail className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
@@ -267,8 +257,8 @@ export default async function Contact({ locale }: Readonly<ContactProps>) {
             </div>
 
             {/* Card 2: Phone */}
-            <div className="bg-white dark:bg-zinc-800/95 rounded-2xl p-6 border border-gray-200/80 dark:border-zinc-700/70 hover:border-primary/50 shadow-xs hover:shadow-sm transition-all flex items-start gap-4 sm:gap-5 group">
-              <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 ring-4 ring-primary/5">
+            <div className="bg-white dark:bg-zinc-800/95 rounded-2xl p-6 border border-gray-200/80 dark:border-zinc-700/70 shadow-xs flex items-start gap-4 sm:gap-5">
+              <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 ring-4 ring-primary/5">
                 <Phone className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
@@ -293,8 +283,8 @@ export default async function Contact({ locale }: Readonly<ContactProps>) {
             </div>
 
             {/* Card 3: Location */}
-            <div className="bg-white dark:bg-zinc-800/95 rounded-2xl p-6 border border-gray-200/80 dark:border-zinc-700/70 hover:border-primary/50 shadow-xs hover:shadow-sm transition-all flex items-start gap-4 sm:gap-5 group">
-              <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 ring-4 ring-primary/5">
+            <div className="bg-white dark:bg-zinc-800/95 rounded-2xl p-6 border border-gray-200/80 dark:border-zinc-700/70 shadow-xs flex items-start gap-4 sm:gap-5">
+              <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center flex-shrink-0 ring-4 ring-primary/5">
                 <MapPin className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
