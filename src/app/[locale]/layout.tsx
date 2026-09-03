@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import Widgets from "@/components/common/Widgets";
-import { getGeneral } from "@/app/panel/actions";
+import { getGeneral, getGlobalContact } from "@/app/panel/actions";
 
 const LOCALES = ["en", "es"] as const;
 
@@ -21,14 +21,28 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const general = await getGeneral();
+  const [general, globalContact] = await Promise.all([
+    getGeneral(),
+    getGlobalContact(),
+  ]);
+
+  const instagramLink = globalContact.socialLinks.find(
+    (s) => s.platform.toLowerCase() === "instagram"
+  );
 
   return (
     <>
       <Header logoKey={general.logoKey} />
       {children}
-      <Footer locale={locale as "en" | "es"} />
-      <Widgets />
+      <Footer
+        locale={locale as "en" | "es"}
+        general={general}
+        globalContact={globalContact}
+      />
+      <Widgets
+        whatsappNumber={globalContact.phone}
+        instagramUrl={instagramLink?.url}
+      />
     </>
   );
 }

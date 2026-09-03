@@ -1,5 +1,5 @@
 import PageSection from "@/components/common/PageSection";
-import { getContactInfo } from "@/app/panel/actions";
+import { getContactInfo, getGlobalContact } from "@/app/panel/actions";
 import { LOCALES, type Locale } from "@/types/cms";
 import ContactInfoBlock from "@/components/contact/ContactInfoBlock";
 import ContactFormWithScheduling from "@/components/contact/ContactFormWithScheduling";
@@ -17,7 +17,10 @@ export default async function ContactPage({
   }
 
   const currentLocale = locale as Locale;
-  const data = await getContactInfo();
+  const [data, globalContact] = await Promise.all([
+    getContactInfo(),
+    getGlobalContact(),
+  ]);
   const info = data.locales[currentLocale];
 
   return (
@@ -25,7 +28,11 @@ export default async function ContactPage({
       <section className="pt-24 pb-16">
         <div>
           <div className="grid md:grid-cols-2 gap-16 items-start">
-            <ContactInfoBlock info={info} asHeading="h1" />
+            <ContactInfoBlock
+              info={info}
+              globalContact={globalContact}
+              asHeading="h1"
+            />
             <ContactFormWithScheduling locale={currentLocale} />
           </div>
         </div>

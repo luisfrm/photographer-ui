@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { transformUser, type UserProfile } from "@/lib/supabase/user";
@@ -29,6 +30,8 @@ import type {
   CmsContactSchedulingLocale,
   CmsGeneralContent,
   CmsGeneralLocale,
+  CmsGlobalContactContent,
+  CmsSocialLink,
   CmsSectionData,
   CmsSectionKey,
   Locale,
@@ -80,6 +83,32 @@ export async function getCurrentUserAction(): Promise<UserProfile | null> {
   return transformUser(user);
 }
 
+/**
+ * Checks whether any registered users exist in Supabase Auth.
+ * Used to determine whether the login page should display the initial
+ * admin setup/registration form or the standard login form.
+ */
+export async function hasRegisteredUsersAction(): Promise<boolean> {
+  try {
+    const serviceClient = createServiceClient();
+    const { data, error } = await serviceClient.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
+
+    if (error) {
+      console.error("Failed to check registered users:", error);
+      // Fail closed: assume true so registration is not accidentally exposed if service role key fails
+      return true;
+    }
+
+    return (data?.users?.length ?? 0) > 0;
+  } catch (err) {
+    console.error("Error in hasRegisteredUsersAction:", err);
+    return true;
+  }
+}
+
 export async function loginAction(
   _prevState: AuthFormState | null,
   formData: FormData
@@ -110,6 +139,15 @@ export async function signUpAction(
   _prevState: AuthFormState | null,
   formData: FormData
 ): Promise<AuthFormState> {
+  // Security guard: Only allow registration if no users exist yet
+  const hasUsers = await hasRegisteredUsersAction();
+  if (hasUsers) {
+    return {
+      error: "Registration is disabled because an administrator account already exists.",
+      success: null,
+    };
+  }
+
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const phone = formData.get("phone") as string;
@@ -146,9 +184,19 @@ export async function signUpAction(
     return { error: error.message, success: null };
   }
 
+  // Attempt automatic sign in after initial setup
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (!signInError) {
+    redirect("/panel/dashboard");
+  }
+
   return {
     error: null,
-    success: "Account created successfully! Please check your email to verify your account.",
+    success: "Admin account created successfully! Please check your email or sign in below.",
   };
 }
 
@@ -159,6 +207,124 @@ export async function signOutAction() {
   await supabase.auth.signOut();
 
   redirect("/panel/login");
+}
+
+// ─── User Management Actions ───────────────────────────────
+
+export type AdminUserItem = {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string;
+  createdAt: string;
+};
+
+/**
+ * Lists all registered users from Supabase Auth via the service client.
+ */
+export async function getUsersAction(): Promise<AdminUserItem[]> {
+  try {
+    const serviceClient = createServiceClient();
+    const { data, error } = await serviceClient.auth.admin.listUsers();
+    if (error) {
+      console.error("Error listing users:", error);
+      return [];
+    }
+
+    return (data?.users || []).map((u) => ({
+      id: u.id,
+      email: u.email || "",
+      name:
+        (u.user_metadata?.full_name as string) ||
+        (u.email ? u.email.split("@")[0] : "User"),
+      phone: (u.user_metadata?.phone_number as string) || u.phone || "",
+      createdAt: u.created_at,
+    }));
+  } catch (err) {
+    console.error("Error in getUsersAction:", err);
+    return [];
+  }
+}
+
+/**
+ * Creates a new admin user directly via Supabase Auth Admin.
+ * Marks the email as confirmed so the user can immediately log in.
+ */
+export async function createAdminUserAction(
+  _prevState: unknown,
+  formData: FormData
+): Promise<{ error: string | null; success: string | null }> {
+  const currentUser = await getCurrentUserAction();
+  if (!currentUser) {
+    return { error: "Unauthorized", success: null };
+  }
+
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
+  const password = formData.get("password") as string;
+
+  if (!name || !email || !password) {
+    return { error: "Name, email, and password are required", success: null };
+  }
+
+  if (password.length < 6) {
+    return { error: "Password must be at least 6 characters", success: null };
+  }
+
+  try {
+    const serviceClient = createServiceClient();
+    const { error } = await serviceClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: name,
+        phone_number: phone || "",
+      },
+    });
+
+    if (error) {
+      return { error: error.message, success: null };
+    }
+
+    revalidatePath("/panel/users");
+    return { error: null, success: "User created successfully!" };
+  } catch (err) {
+    console.error("Error in createAdminUserAction:", err);
+    return { error: "Unexpected error creating user", success: null };
+  }
+}
+
+/**
+ * Deletes a user via Supabase Auth Admin.
+ * Prevents the currently logged-in user from deleting their own account.
+ */
+export async function deleteAdminUserAction(
+  userId: string
+): Promise<{ error: string | null; success: string | null }> {
+  const currentUser = await getCurrentUserAction();
+  if (!currentUser) {
+    return { error: "Unauthorized", success: null };
+  }
+
+  if (currentUser.id === userId) {
+    return { error: "You cannot delete your own account", success: null };
+  }
+
+  try {
+    const serviceClient = createServiceClient();
+    const { error } = await serviceClient.auth.admin.deleteUser(userId);
+    if (error) {
+      return { error: error.message, success: null };
+    }
+
+    revalidatePath("/panel/users");
+    return { error: null, success: "User deleted successfully" };
+  } catch (err) {
+    console.error("Error in deleteAdminUserAction:", err);
+    return { error: "Unexpected error deleting user", success: null };
+  }
 }
 
 // ─── Content Types ──────────────────────────────────────────
@@ -1040,6 +1206,64 @@ export async function saveGeneralLogo(
   };
 
   const { error } = await saveContentAction("global.general", updated);
+
+  if (error) {
+    return { success: false, error };
+  }
+
+  return { success: true, error: null };
+}
+
+// ─── Global Contact Actions ────────────────────────────────
+
+const GLOBAL_CONTACT_DEFAULTS: CmsGlobalContactContent = {
+  phone: "+1 555 000 0000",
+  email: "contact@dnovagallery.com",
+  location: "Utah, US",
+  socialLinks: [
+    {
+      platform: "Instagram",
+      url: "https://instagram.com/dnovagallery",
+    },
+  ],
+};
+
+export async function getGlobalContact(): Promise<CmsGlobalContactContent> {
+  const { data, error } = await getContentAction("global.contact");
+
+  if (error || !data) {
+    // Graceful fallback to existing contact.info if global.contact has not been saved yet
+    const contactInfo = await getContactInfo();
+    const fallbackLocale = contactInfo.locales.en || contactInfo.locales.es;
+    if (fallbackLocale && (fallbackLocale.phone || fallbackLocale.email)) {
+      return {
+        phone: fallbackLocale.phone || GLOBAL_CONTACT_DEFAULTS.phone,
+        email: fallbackLocale.email || GLOBAL_CONTACT_DEFAULTS.email,
+        location: fallbackLocale.location || GLOBAL_CONTACT_DEFAULTS.location,
+        socialLinks:
+          fallbackLocale.socialLinks && fallbackLocale.socialLinks.length > 0
+            ? fallbackLocale.socialLinks
+            : GLOBAL_CONTACT_DEFAULTS.socialLinks,
+      };
+    }
+    return GLOBAL_CONTACT_DEFAULTS;
+  }
+
+  const d = data as CmsGlobalContactContent;
+  return {
+    phone: d.phone ?? GLOBAL_CONTACT_DEFAULTS.phone,
+    email: d.email ?? GLOBAL_CONTACT_DEFAULTS.email,
+    location: d.location ?? GLOBAL_CONTACT_DEFAULTS.location,
+    socialLinks: Array.isArray(d.socialLinks)
+      ? d.socialLinks
+      : GLOBAL_CONTACT_DEFAULTS.socialLinks,
+  };
+}
+
+export async function saveGlobalContactAction(
+  data: CmsGlobalContactContent
+): Promise<{ success: boolean; error: string | null }> {
+  const { error } = await saveContentAction("global.contact", data);
 
   if (error) {
     return { success: false, error };

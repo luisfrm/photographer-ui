@@ -12,10 +12,11 @@ import {
   Github,
   type LucideIcon,
 } from "lucide-react";
-import type { CmsContactInfoLocale } from "@/types/cms";
+import type { CmsContactInfoLocale, CmsGlobalContactContent } from "@/types/cms";
 
 interface ContactInfoBlockProps {
   info: CmsContactInfoLocale;
+  globalContact?: CmsGlobalContactContent;
   asHeading?: "h1" | "h2";
 }
 
@@ -43,8 +44,15 @@ function getSocialIcon(platform: string | undefined): LucideIcon {
 
 export default function ContactInfoBlock({
   info,
+  globalContact,
   asHeading: Heading = "h1",
 }: Readonly<ContactInfoBlockProps>) {
+  const email = globalContact?.email || info.email;
+  const phone = globalContact?.phone || info.phone;
+  const location = globalContact?.location || info.location;
+  const socialLinks = globalContact?.socialLinks?.length
+    ? globalContact.socialLinks
+    : info.socialLinks;
   return (
     <div>
       <Heading className="text-5xl sm:text-6xl font-serif mb-8 text-black">
@@ -56,41 +64,41 @@ export default function ContactInfoBlock({
       )}
 
       <div className="space-y-6">
-        {info.email && (
+        {email && (
           <div className="flex items-center">
             <Mail className="w-5 h-5 mr-4 text-black flex-shrink-0" />
             <a
-              href={`mailto:${info.email}`}
+              href={`mailto:${email}`}
               className="text-gray-600 hover:text-black transition-colors"
             >
-              {info.email}
+              {email}
             </a>
           </div>
         )}
-        {info.phone && (
+        {phone && (
           <div className="flex items-center">
             <Phone className="w-5 h-5 mr-4 text-black flex-shrink-0" />
             <a
-              href={`tel:${info.phone.replace(/\s/g, "")}`}
+              href={`tel:${phone.replace(/\s/g, "")}`}
               className="text-gray-600 hover:text-black transition-colors"
             >
-              {info.phone}
+              {phone}
             </a>
           </div>
         )}
-        {info.location && (
+        {location && (
           <div className="flex items-center">
             <MapPin className="w-5 h-5 mr-4 text-black flex-shrink-0" />
-            <span className="text-gray-600">{info.location}</span>
+            <span className="text-gray-600">{location}</span>
           </div>
         )}
       </div>
 
-      {info.socialLinks && info.socialLinks.length > 0 && (
+      {socialLinks && socialLinks.length > 0 && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-4 text-black">Follow Me</h3>
           <div className="flex space-x-4">
-            {info.socialLinks.map((link, index) => {
+            {socialLinks.map((link, index) => {
               const Icon = getSocialIcon(link.platform);
               return (
                 <Link

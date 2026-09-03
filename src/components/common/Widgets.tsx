@@ -8,12 +8,14 @@ import { getContent, getLocaleFromPathname } from "@/config";
 
 interface WidgetsProps {
   whatsappNumber?: string;
+  instagramUrl?: string;
   instagramUsername?: string;
 }
 
 export default function Widgets({
-  whatsappNumber = "+1234567890",
-  instagramUsername = "photographer",
+  whatsappNumber,
+  instagramUrl,
+  instagramUsername,
 }: WidgetsProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const pathname = usePathname();
@@ -36,50 +38,78 @@ export default function Widgets({
     });
   };
 
+  const cleanWhatsApp = whatsappNumber?.replace(/\D/g, "") ?? "";
+  const hasWhatsApp = cleanWhatsApp.length > 0;
+
+  const instagramTarget =
+    instagramUrl?.trim() ||
+    (instagramUsername ? `https://instagram.com/${instagramUsername.replace(/^@/, "")}` : "");
+  const hasInstagram = Boolean(instagramTarget && instagramTarget.length > 0);
+
   const openWhatsApp = () => {
+    if (!cleanWhatsApp) return;
     const message = encodeURIComponent(t.widgets.whatsappMessage);
-    const url = `https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${message}`;
-    window.open(url, "_blank");
+    const url = `https://wa.me/${cleanWhatsApp}?text=${message}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const openInstagram = () => {
-    const url = `https://instagram.com/${instagramUsername}`;
-    window.open(url, "_blank");
+    if (!instagramTarget) return;
+    const url = instagramTarget.startsWith("http")
+      ? instagramTarget
+      : `https://instagram.com/${instagramTarget.replace(/^@/, "")}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  // Dynamically calculate slot position (0 = bottom-6, 1 = bottom-[5.5rem], 2 = bottom-38)
+  let nextSlot = showScrollTop ? 1 : 0;
+  const whatsappSlot = hasWhatsApp ? nextSlot++ : -1;
+  const instagramSlot = hasInstagram ? nextSlot++ : -1;
+
+  const getBottomClass = (slot: number) => {
+    if (slot === 0) return "bottom-6";
+    if (slot === 1) return "bottom-[5.5rem]";
+    if (slot === 2) return "bottom-38";
+    return "bottom-6";
   };
 
   return (
     <>
       {/* WhatsApp Widget */}
-      <button
-        onClick={openWhatsApp}
-        className={cn(
-          "group fixed right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl",
-          showScrollTop ? "bottom-24" : "bottom-6"
-        )}
-        aria-label={t.widgets.whatsappLabel}
-        title={t.widgets.whatsappTooltip}
-      >
-        <MessageCircle className="w-6 h-6" />
-        <span className="absolute pointer-events-none right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-          {t.widgets.whatsappTooltip}
-        </span>
-      </button>
+      {hasWhatsApp && (
+        <button
+          onClick={openWhatsApp}
+          className={cn(
+            "group fixed right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl",
+            getBottomClass(whatsappSlot)
+          )}
+          aria-label={t.widgets.whatsappLabel}
+          title={t.widgets.whatsappTooltip}
+        >
+          <MessageCircle className="w-6 h-6" />
+          <span className="absolute pointer-events-none right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-md">
+            {t.widgets.whatsappTooltip}
+          </span>
+        </button>
+      )}
 
       {/* Instagram Widget */}
-      <button
-        onClick={openInstagram}
-        className={cn(
-          "group fixed right-6 z-50 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl",
-          showScrollTop ? "bottom-42" : "bottom-24"
-        )}
-        aria-label={t.widgets.instagramLabel}
-        title={t.widgets.instagramTooltip}
-      >
-        <Instagram className="w-6 h-6" />
-        <span className="absolute pointer-events-none right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-          {t.widgets.instagramTooltip}
-        </span>
-      </button>
+      {hasInstagram && (
+        <button
+          onClick={openInstagram}
+          className={cn(
+            "group fixed right-6 z-50 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl",
+            getBottomClass(instagramSlot)
+          )}
+          aria-label={t.widgets.instagramLabel}
+          title={t.widgets.instagramTooltip}
+        >
+          <Instagram className="w-6 h-6" />
+          <span className="absolute pointer-events-none right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-md">
+            {t.widgets.instagramTooltip}
+          </span>
+        </button>
+      )}
 
       {/* Scroll to Top Widget */}
       <button
@@ -92,7 +122,7 @@ export default function Widgets({
         title={t.widgets.scrollTopTooltip}
       >
         <ChevronUp className="w-6 h-6" />
-        <span className="absolute pointer-events-none right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+        <span className="absolute pointer-events-none right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-md">
           {t.widgets.scrollTopTooltip}
         </span>
       </button>

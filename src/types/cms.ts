@@ -74,6 +74,20 @@ export interface CmsGeneralContent extends CmsContentBase {
   };
 }
 
+/** Social media link item */
+export interface CmsSocialLink {
+  platform: string;
+  url: string;
+}
+
+/** Global business contact info & social media channels */
+export interface CmsGlobalContactContent extends CmsContentBase {
+  phone: string;
+  email: string;
+  location: string;
+  socialLinks: CmsSocialLink[];
+}
+
 // ─── Home Sections ──────────────────────────────────────────
 
 /** Hero locale-specific content (text, CTA) */
@@ -316,6 +330,7 @@ export interface CmsContactSchedulingContent extends CmsContentBase {
 export type CmsSectionData = {
   // Global
   "global.general": CmsGeneralContent;
+  "global.contact": CmsGlobalContactContent;
   // Home
   "home.hero": CmsHeroContent;
   "home.carousel": CmsCarouselContent;
@@ -345,6 +360,7 @@ export type CmsSectionKey = keyof CmsSectionData;
  */
 export const CMS_SECTION_KEYS: CmsSectionKey[] = [
   "global.general",
+  "global.contact",
   "home.hero",
   "home.carousel",
   "home.about",
