@@ -3,6 +3,7 @@ import { Geist_Mono, Montserrat, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
+import { getBaseUrl } from "@/lib/seo";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -21,12 +22,28 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Photographer Studio",
-  description: "Photographer Studio",
+  metadataBase: new URL(getBaseUrl()),
+  title: {
+    default: "DnovaGallery | Portrait & Event Photography in Utah",
+    template: "%s | DnovaGallery",
+  },
+  description:
+    "Capture timeless, natural portraits and intimate events in Utah with Darianny Salas. Guided posing, magazine-quality editing, and fast turnaround.",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/favicon_apple.ico",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "DnovaGallery",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

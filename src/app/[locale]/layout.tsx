@@ -3,6 +3,8 @@ import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import Widgets from "@/components/common/Widgets";
 import { getGeneral, getGlobalContact } from "@/app/panel/actions";
+import { JsonLd, buildPhotographerSchema } from "@/components/seo/JsonLd";
+import { getBaseUrl } from "@/lib/seo";
 
 const LOCALES = ["en", "es"] as const;
 
@@ -30,8 +32,24 @@ export default async function LocaleLayout({
     (s) => s.platform.toLowerCase() === "instagram"
   );
 
+  const brandLocale = general.locales[locale as "en" | "es"];
+  const baseUrl = getBaseUrl();
+
+  const photographerSchema = buildPhotographerSchema({
+    name: brandLocale?.title || "DnovaGallery",
+    founder: "Darianny Salas",
+    description: brandLocale?.slogan || "Capturing moments, creating memories.",
+    url: baseUrl,
+    telephone: globalContact.phone,
+    email: globalContact.email,
+    location: globalContact.location,
+    socialLinks: globalContact.socialLinks.map((s) => s.url),
+    imageUrl: `${baseUrl}/opengraph-image`,
+  });
+
   return (
     <>
+      <JsonLd schema={photographerSchema} />
       <Header logoKey={general.logoKey} />
       {children}
       <Footer

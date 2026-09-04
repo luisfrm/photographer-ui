@@ -4,6 +4,8 @@ import { TERMS_AND_CONDITIONS_DATA } from "@/config/legal/terms-and-conditions";
 import LegalPageLayout from "@/components/legal/LegalPageLayout";
 import { PageProps } from "@/types/pages";
 
+import { constructMetadata } from "@/lib/seo";
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -11,10 +13,12 @@ export async function generateMetadata({
   const validLocale = (locale === "es" ? "es" : "en") as "en" | "es";
   const data = TERMS_AND_CONDITIONS_DATA[validLocale];
 
-  return {
+  return constructMetadata({
     title: data.meta.title,
     description: data.meta.description,
-  };
+    path: "/terms-and-conditions",
+    locale: validLocale,
+  });
 }
 
 export default async function TermsAndConditionsPage({ params }: PageProps) {

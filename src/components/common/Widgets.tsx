@@ -13,7 +13,7 @@ interface WidgetsProps {
 }
 
 /** Official WhatsApp SVG Icon with tight viewBox for optimal scaling */
-function WhatsAppIcon({ className }: { className?: string }) {
+function WhatsAppIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       viewBox="68 82 364 364"
@@ -27,7 +27,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 /** Official Instagram SVG Icon */
-function InstagramIcon({ className }: { className?: string }) {
+function InstagramIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -44,7 +44,7 @@ export default function Widgets({
   whatsappNumber,
   instagramUrl,
   instagramUsername,
-}: WidgetsProps) {
+}: Readonly<WidgetsProps>) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const pathname = usePathname();
   const locale = getLocaleFromPathname(pathname);
@@ -114,6 +114,7 @@ export default function Widgets({
             "group fixed right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl",
             getBottomClass(whatsappSlot)
           )}
+          type="button"
           aria-label={t.widgets.whatsappLabel}
           title={t.widgets.whatsappTooltip}
         >
@@ -134,6 +135,7 @@ export default function Widgets({
           )}
           aria-label={t.widgets.instagramLabel}
           title={t.widgets.instagramTooltip}
+          type="button"
         >
           <InstagramIcon className="w-6 h-6 shrink-0" />
           <span className="absolute pointer-events-none right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-md">
@@ -149,6 +151,7 @@ export default function Widgets({
           "bottom-6 group fixed right-6 z-50 bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl animate-in slide-in-from-bottom-2",
           showScrollTop ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
+        type="button"
         aria-label={t.widgets.scrollTopLabel}
         title={t.widgets.scrollTopTooltip}
       >

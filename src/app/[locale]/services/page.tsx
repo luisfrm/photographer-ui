@@ -10,9 +10,11 @@ import {
 } from "@/app/panel/actions";
 import { getServicesIcon } from "@/lib/cms-icons";
 import HeadlineUnderline from "@/components/common/Headline";
-import type { CmsServicePackage } from "@/types/cms";
+import type { CmsServicePackage, Locale } from "@/types/cms";
 import { PageProps } from "@/types/pages";
 import type { Metadata } from "next";
+import { constructMetadata, SEO_COPY } from "@/lib/seo";
+import { JsonLd, buildFaqSchema } from "@/components/seo/JsonLd";
 
 // ─── Page metadata from CMS ───────────────────────────────
 
@@ -20,14 +22,22 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
+  const currentLocale = (locale === "es" ? "es" : "en") as Locale;
   const meta = await getServicesMeta();
-  const localeData = meta.locales[locale as "en" | "es"];
+  const localeData = meta.locales[currentLocale];
+  const defaultCopy = SEO_COPY.services[currentLocale];
 
-  return {
-    title: localeData?.metaTitle || localeData?.title || "Services",
-    description:
-      localeData?.metaDescription || localeData?.description || undefined,
-  };
+  const title = localeData?.metaTitle || localeData?.title || defaultCopy.title;
+  const description =
+    localeData?.metaDescription || localeData?.description || defaultCopy.description;
+
+  return constructMetadata({
+    title,
+    description,
+    path: "/services",
+    locale: currentLocale,
+    keywords: [...defaultCopy.keywords],
+  });
 }
 
 // ─── Page ──────────────────────────────────────────────────
@@ -59,9 +69,11 @@ export default async function ServicesPage({ params }: Readonly<PageProps>) {
   const hasIncluded = includedLocale.items.length > 0;
   const hasProcess = processLocale.steps.length > 0;
   const hasFaq = faqLocale.items.length > 0;
+  const faqSchema = hasFaq ? buildFaqSchema(faqLocale.items) : null;
 
   return (
     <div className="min-h-screen bg-white">
+      {faqSchema && <JsonLd schema={faqSchema} />}
       {/* Hero Section */}
       {metaLocale && (
         <section className="pt-28 pb-16">
