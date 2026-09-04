@@ -1656,10 +1656,10 @@ export async function createAppointmentAction(
       return { data: null, error: "Invalid time range" };
     }
 
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    // Use service client so RLS does not block returning the created appointment row for anonymous visitors
+    const service = createServiceClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await service
       .from("appointments")
       .insert({
         name: name.trim(),
@@ -1697,8 +1697,6 @@ export async function createAppointmentAction(
     try {
       const eventId = await syncAppointmentToGoogle(appointment);
       if (eventId) {
-        // Must use service client to update appointments because anon user lacks UPDATE permission
-        const service = createServiceClient();
         await service
           .from("appointments")
           .update({ google_event_id: eventId, updated_at: new Date().toISOString() })
